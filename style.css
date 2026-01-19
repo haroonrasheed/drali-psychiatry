@@ -1378,6 +1378,18 @@ h3 {
     font-size: 1.05rem;
     display: block;
     text-align: left;
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 10px;
+  }
+
+  .topbar {
+    background: rgba(7, 18, 14, 0.92) !important;
+  }
+
+  .nav-wrap {
+    position: relative;
+    z-index: 120;
   }
 }
 
