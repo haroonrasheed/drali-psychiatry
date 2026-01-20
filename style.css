@@ -451,6 +451,19 @@ h3 {
   flex-wrap: wrap;
 }
 
+.nav-right .nav-link {
+  background: rgba(235, 238, 238, 0.9);
+  color: #0b1a2d;
+  border: 1px solid rgba(12, 26, 45, 0.08);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
+  font-weight: 600;
+}
+
+.nav-right .nav-link:hover {
+  background: rgba(235, 238, 238, 1);
+  color: #0b1a2d;
+}
+
 .btn.ghost {
   border-color: rgba(12, 26, 45, 0.12);
   color: var(--ink);
@@ -1449,17 +1462,37 @@ h3 {
     display: grid;
     gap: 10px;
     margin-top: 6px;
+    align-items: stretch;
+    justify-items: stretch;
+    padding: 0;
+    margin-left: 0;
+  }
+
+  .nav-right .nav-link {
+    background: rgba(204, 208, 208, 0.9);
+    color: #0b1a2d;
+    border: 1px solid rgba(12, 26, 45, 0.08);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
   }
 
   .nav .btn.nav-btn {
     width: 100%;
     max-width: none;
-    justify-content: center;
+    justify-content: flex-start;
     padding: 14px 16px;
     min-height: 52px;
     border-radius: 12px;
     box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.12);
+    text-align: left;
+    margin: 0;
+  }
+
+  .nav-right > * {
+    width: 100%;
+    justify-content: flex-start;
+    text-align: left;
+    margin: 0;
   }
 
   .topbar {
