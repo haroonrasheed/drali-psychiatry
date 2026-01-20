@@ -1420,6 +1420,8 @@ h3 {
 
   .nav-wrap {
     position: relative;
+    justify-content: space-between;
+    align-items: center;
   }
 
   .mobile-menu-toggle {
@@ -1427,9 +1429,36 @@ h3 {
     color: #ffffff;
     background: rgba(34, 197, 94, 0.18);
     border: 1px solid rgba(255, 255, 255, 0.22);
-    padding: 8px 12px;
+    padding: 8px 14px 8px 12px;
     border-radius: 12px;
     font-weight: 700;
+    font-size: 1rem;
+    position: relative;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+  }
+
+  .mobile-menu-toggle[aria-expanded='true'] {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.32);
+  }
+
+  .mobile-menu-toggle::after {
+    content: '☰';
+    font-size: 1rem;
+    line-height: 1;
+    display: inline-block;
+    transform: translateY(1px);
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    opacity: 0.9;
+  }
+
+  .mobile-menu-toggle.is-open::after,
+  .mobile-menu-toggle[aria-expanded='true']::after {
+    content: '×';
+    font-size: 1.1rem;
+    transform: translateY(0);
   }
 
   .nav-link {
@@ -1455,6 +1484,24 @@ h3 {
     background: linear-gradient(140deg, rgba(45, 220, 122, 0.18), rgba(91, 90, 246, 0.12));
     border-color: rgba(45, 220, 122, 0.5);
     box-shadow: 0 16px 34px rgba(13, 27, 21, 0.35);
+  }
+
+  .mobile-menu-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.14);
+    color: #ffffff;
+    font-size: 1.3rem;
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.22);
+    margin: 10px auto 6px;
+    position: sticky;
+    bottom: 16px;
+    align-self: center;
   }
 
   .nav-right {
@@ -1698,6 +1745,27 @@ h3 {
 
   .card:nth-child(4) {
     animation-delay: 0.15s;
+  }
+}
+
+/* Overrides to improve mobile menu toggle alignment and icon rendering */
+@media (max-width: 900px) {
+  .nav-wrap {
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .mobile-menu-toggle {
+    margin-left: auto;
+  }
+
+  .mobile-menu-toggle::after {
+    content: '\2630';
+  }
+
+  .mobile-menu-toggle.is-open::after,
+  .mobile-menu-toggle[aria-expanded='true']::after {
+    content: '\00d7';
   }
 }
 

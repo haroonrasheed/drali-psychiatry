@@ -15,7 +15,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const setNavOpen = (open) => {
       nav.classList.toggle('active', open);
       menuToggle.setAttribute('aria-expanded', String(open));
+      menuToggle.classList.toggle('is-open', open);
+      menuToggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
     };
+
+    // Add a dedicated close control inside the mobile menu
+    if (!nav.querySelector('.mobile-menu-close')) {
+      const closeBtn = document.createElement('button');
+      closeBtn.type = 'button';
+      closeBtn.className = 'mobile-menu-close';
+      closeBtn.setAttribute('aria-label', 'Close menu');
+      closeBtn.textContent = '×';
+      closeBtn.addEventListener('click', () => setNavOpen(false));
+      nav.appendChild(closeBtn);
+    }
 
     menuToggle.addEventListener('click', () => {
       const isExpanded = nav.classList.contains('active');
@@ -26,6 +39,12 @@ document.addEventListener('DOMContentLoaded', () => {
       link.addEventListener('click', () => {
         if (nav.classList.contains('active')) setNavOpen(false);
       });
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && nav.classList.contains('active')) {
+        setNavOpen(false);
+      }
     });
   }
 
