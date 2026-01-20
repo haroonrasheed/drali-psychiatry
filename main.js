@@ -12,10 +12,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const appointmentName = appointmentOverlay ? appointmentOverlay.querySelector('#modal-name') : null;
 
   if (menuToggle && nav) {
+    const setNavOpen = (open) => {
+      nav.classList.toggle('active', open);
+      menuToggle.setAttribute('aria-expanded', String(open));
+    };
+
     menuToggle.addEventListener('click', () => {
-      nav.classList.toggle('active');
       const isExpanded = nav.classList.contains('active');
-      menuToggle.setAttribute('aria-expanded', String(isExpanded));
+      setNavOpen(!isExpanded);
+    });
+
+    nav.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', () => {
+        if (nav.classList.contains('active')) setNavOpen(false);
+      });
     });
   }
 
@@ -275,4 +285,10 @@ document.addEventListener('DOMContentLoaded', () => {
       })();
     });
   }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && chatbox && chatbox.classList.contains('open')) {
+      setChatOpen(false);
+    }
+  });
 });

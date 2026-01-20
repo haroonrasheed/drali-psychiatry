@@ -65,7 +65,7 @@
           </div>
           <div class="hero-media">
             <div class="hero-visual">
-              <img src="695824fa0db7857bd14e2051_Homepage-1-reduced.avif" alt="Clinician speaking with a patient in a calm, modern space" />
+              <img src="695824fa0db7857bd14e2051_Homepage-1-reduced.avif" alt="Clinician speaking with a patient in a calm, modern space" loading="lazy" decoding="async" />
               <div class="floating-badge">
                 <span class="dot"></span>
                 <div>
@@ -310,22 +310,22 @@
       <form class="form" data-contact-form>
         <div class="form-group">
           <label for="modal-name">Full Name</label>
-          <input id="modal-name" name="name" type="text" placeholder="Your full name" required />
+          <input id="modal-name" name="name" type="text" placeholder="Your full name" autocomplete="name" required />
         </div>
         <div class="form-group">
           <label for="modal-phone">Phone</label>
-          <input id="modal-phone" name="phone" type="tel" placeholder="(###) ###-####" />
+          <input id="modal-phone" name="phone" type="tel" placeholder="(###) ###-####" autocomplete="tel" inputmode="tel" />
         </div>
         <div class="form-group">
           <label for="modal-email">Email</label>
-          <input id="modal-email" name="email" type="email" placeholder="you@example.com" required />
+          <input id="modal-email" name="email" type="email" placeholder="you@example.com" autocomplete="email" required />
         </div>
         <div class="form-group">
           <label for="modal-message">Brief Message (do not include sensitive details)</label>
-          <textarea id="modal-message" name="message" rows="4" placeholder="Share the reason for your visit and preferred times." required></textarea>
+          <textarea id="modal-message" name="message" rows="4" placeholder="Share the reason for your visit and preferred times." autocomplete="off" required></textarea>
         </div>
         <button type="submit" class="btn solid">Submit Request</button>
-        <div class="form-status" aria-live="polite"></div>
+        <div class="form-status" role="status" aria-live="polite"></div>
         <p class="form-note">
           This form sends your request to the clinic. Please avoid sensitive medical or financial information; intake will be completed on a secure channel.
         </p>
@@ -356,16 +356,16 @@
       <p class="muted">This chat is for general questions and scheduling. Please do not share diagnoses or protected health information.</p>
       <form class="chatbox-form" data-chat-form>
         <label for="chat-name" class="sr-only">Name</label>
-        <input id="chat-name" name="name" type="text" placeholder="Your name" required />
+        <input id="chat-name" name="name" type="text" placeholder="Your name" autocomplete="name" required />
 
         <label for="chat-phone" class="sr-only">Contact number</label>
-        <input id="chat-phone" name="phone" type="tel" placeholder="Contact number" />
+        <input id="chat-phone" name="phone" type="tel" placeholder="Contact number" autocomplete="tel" inputmode="tel" />
 
         <label for="chat-email" class="sr-only">Email</label>
-        <input id="chat-email" name="email" type="email" placeholder="Email" required />
+        <input id="chat-email" name="email" type="email" placeholder="Email" autocomplete="email" required />
 
         <label for="chat-message" class="sr-only">Message</label>
-        <textarea id="chat-message" name="message" rows="3" placeholder="Your question or request" required></textarea>
+        <textarea id="chat-message" name="message" rows="3" placeholder="Your question or request" autocomplete="off" required></textarea>
 
         <button type="submit" class="btn solid chatbox-send">Send</button>
         <div class="chatbox-status" role="status" aria-live="polite"></div>
