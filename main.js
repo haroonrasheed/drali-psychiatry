@@ -19,16 +19,28 @@ document.addEventListener('DOMContentLoaded', () => {
       menuToggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
     };
 
-    // Add a dedicated close control inside the mobile menu
-    if (!nav.querySelector('.mobile-menu-close')) {
-      const closeBtn = document.createElement('button');
-      closeBtn.type = 'button';
-      closeBtn.className = 'mobile-menu-close';
-      closeBtn.setAttribute('aria-label', 'Close menu');
-      closeBtn.textContent = '×';
-      closeBtn.addEventListener('click', () => setNavOpen(false));
-      nav.appendChild(closeBtn);
-    }
+    // Add a dedicated close control inside the mobile menu (mobile/tablet only)
+    const shouldShowMobileClose = () => window.matchMedia('(max-width: 900px)').matches;
+
+    const ensureMobileClose = () => {
+      const existing = nav.querySelector('.mobile-menu-close');
+      if (shouldShowMobileClose()) {
+        if (!existing) {
+          const closeBtn = document.createElement('button');
+          closeBtn.type = 'button';
+          closeBtn.className = 'mobile-menu-close';
+          closeBtn.setAttribute('aria-label', 'Close menu');
+          closeBtn.textContent = '×';
+          closeBtn.addEventListener('click', () => setNavOpen(false));
+          nav.appendChild(closeBtn);
+        }
+      } else if (existing) {
+        existing.remove();
+      }
+    };
+
+    ensureMobileClose();
+    window.addEventListener('resize', ensureMobileClose);
 
     menuToggle.addEventListener('click', () => {
       const isExpanded = nav.classList.contains('active');

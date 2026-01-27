@@ -1486,11 +1486,11 @@ h3 {
     box-shadow: 0 16px 34px rgba(13, 27, 21, 0.35);
   }
 
-  .mobile-menu-close {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 42px;
+.mobile-menu-close {
+  display: none !important;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
     height: 42px;
     border-radius: 50%;
     border: 1px solid rgba(255, 255, 255, 0.18);
@@ -1498,11 +1498,30 @@ h3 {
     color: #ffffff;
     font-size: 1.3rem;
     box-shadow: 0 14px 32px rgba(0, 0, 0, 0.22);
-    margin: 10px auto 6px;
-    position: sticky;
-    bottom: 16px;
-    align-self: center;
+  margin: 10px auto 6px;
+  position: sticky;
+  bottom: 16px;
+  align-self: center;
+}
+
+@media (max-width: 900px) {
+  .mobile-menu-close {
+    display: inline-flex !important;
   }
+}
+
+/* Ensure Call Clinic stays grey across all pages (desktop + mobile) */
+.nav-right .nav-link {
+  background: #d6dadd !important;
+  color: #0b1a2d !important;
+  border: 1px solid rgba(12, 26, 45, 0.1) !important;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
+}
+
+.nav-right .nav-link:hover {
+  background: #e3e6e7 !important;
+  color: #0b1a2d !important;
+}
 
   .nav-right {
     width: 100%;
@@ -1778,6 +1797,19 @@ h3 {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Final override: keep Call Clinic grey on all pages */
+.nav-right .nav-link {
+  background: #d6dadd !important;
+  color: #0b1a2d !important;
+  border: 1px solid rgba(12, 26, 45, 0.12) !important;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12) !important;
+}
+
+.nav-right .nav-link:hover {
+  background: #e3e6e7 !important;
+  color: #0b1a2d !important;
 }
 
 

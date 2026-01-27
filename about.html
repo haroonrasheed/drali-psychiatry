@@ -30,7 +30,7 @@
           <a class="nav-link" href="privacy.html">Privacy</a>
           <span class="nav-right">
             <a class="nav-link" href="tel:+16308980984">Call Clinic</a>
-            <a class="btn nav-btn solid" href="appointments.html">Book Appointment</a>
+            <a class="btn nav-btn solid" href="#cta" data-open-appointment>Book Appointment</a>
           </span>
         </nav>
       </div>
@@ -122,6 +122,40 @@
         </div>
       </section>
     </main>
+
+    <!-- Appointment modal -->
+    <div class="modal-overlay" data-appointment-overlay hidden>
+      <div class="appointment-modal" role="dialog" aria-modal="true" aria-labelledby="appointment-modal-title">
+        <button class="modal-close" type="button" aria-label="Close appointment form" data-appointment-close>&times;</button>
+        <h2 id="appointment-modal-title">Request appointment</h2>
+        <form class="form" data-contact-form>
+          <div class="form-group">
+            <label for="modal-name">Full Name</label>
+            <input id="modal-name" name="name" type="text" placeholder="Your full name" autocomplete="name" required />
+          </div>
+          <div class="form-group">
+            <label for="modal-phone">Phone</label>
+            <input id="modal-phone" name="phone" type="tel" placeholder="(###) ###-####" autocomplete="tel" inputmode="tel" />
+          </div>
+          <div class="form-group">
+            <label for="modal-email">Email</label>
+            <input id="modal-email" name="email" type="email" placeholder="you@example.com" autocomplete="email" required />
+          </div>
+          <div class="form-group">
+            <label for="modal-message">Brief Message (do not include sensitive details)</label>
+            <textarea id="modal-message" name="message" rows="4" placeholder="Share the reason for your visit and preferred times." autocomplete="off" required></textarea>
+          </div>
+          <button type="submit" class="btn solid">Submit Request</button>
+          <div class="form-status" role="status" aria-live="polite"></div>
+          <p class="form-note">
+            This form sends your request to the clinic. Please avoid sensitive medical or financial information; intake will be completed on a secure channel.
+          </p>
+          <p class="form-note">
+            For confidentiality, please do not share diagnoses, medications, or protected health information in this form. You will complete intake on a secure channel.
+          </p>
+        </form>
+      </div>
+    </div>
 
     <footer class="footer">
       <div class="container footer-grid">
