@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -17,8 +17,8 @@
     <header class="topbar">
       <div class="container nav-wrap">
         <a class="brand" href="index.html#top">
-          <span class="brand-logo-text">Dr. Ali Psychiatry</span>
-          <img class="brand-logo-img" src="logo.png" alt="Dr. Ali Psychiatry logo" />
+          <span class="brand-logo-text">General Psychiatry Services</span>
+          <img class="brand-logo-img" src="logo.png" alt="General Psychiatry Services logo" />
         </a>
         <button class="mobile-menu-toggle" aria-expanded="false" aria-controls="primary-nav">Menu</button>
         <nav class="nav" id="primary-nav">
@@ -26,10 +26,19 @@
           <a class="nav-link" href="about.html">About</a>
           <a class="nav-link active" href="services.html">Services</a>
           <a class="nav-link" href="conditions.html">Conditions</a>
-          <a class="nav-link" href="appointments.html">Appointments</a>
+                    <div class="nav-dropdown">
+            <button class="nav-link nav-dropdown-toggle" type="button" aria-expanded="false" aria-controls="appointments-menu">
+              Appointments
+            </button>
+            <div class="nav-dropdown-menu" id="appointments-menu">
+              <a class="nav-dropdown-item" href="new-patient.html">New Patient</a>
+              <a class="nav-dropdown-item" href="existing-patient.html">Existing Patient</a>
+              <a class="nav-dropdown-item" href="intake-forms.html">Intake Forms</a>
+            </div>
+          </div>
           <a class="nav-link" href="privacy.html">Privacy</a>
           <span class="nav-right">
-            <a class="nav-link" href="tel:+16308980984">Call Clinic</a>
+            <a class="nav-link" href="tel:+16308981031">Call Clinic</a>
             <a class="btn nav-btn solid" href="#cta" data-open-appointment>Book Appointment</a>
           </span>
         </nav>
@@ -144,12 +153,14 @@
       <div class="container footer-grid">
         <div>
           <div class="footer-brand">
-            <img src="logo.png" alt="Dr. Ali Psychiatry logo" />
-            <span class="brand-logo-text">Dr. Ali Psychiatry</span>
+            <img src="logo.png" alt="General Psychiatry Services logo" />
+            <span class="brand-logo-text">General Psychiatry Services</span>
           </div>
           <p class="footer-note">Confidential, compassionate psychiatric care in Aurora, IL.</p>
           <p class="footer-note">3845 McCoy Dr, Suite 109<br />Aurora, IL 60504</p>
-          <p class="footer-note"><a href="tel:+16308980984">(630) 898-0984</a></p>
+          <p class="footer-note"><a href="tel:+16308981031">Phone: (630) 898-1031</a></p>
+          <p class="footer-note"><a href="sms:+16304234210">Text: (630) 423-4210</a></p>
+          <p class="footer-note"><a href="tel:+16308980984">Fax: (630) 898-0984</a></p>
           <p class="footer-note"><a href="mailto:care@kishwaralipsychiatry.com">care@kishwaralipsychiatry.com</a></p>
           <p class="footer-note small-print">Not for emergencies. If you are in crisis, call 911 or go to the nearest emergency room.</p>
         </div>
@@ -177,7 +188,7 @@
             <a href="about.html">About Dr. Ali</a>
             <a href="appointments.html">Appointments</a>
             <a href="privacy.html">Privacy</a>
-            <a href="tel:+16308980984">Call (630) 898-0984</a>
+            <a href="tel:+16308981031">Call (630) 898-1031</a>
           </div>
         </div>
         <div class="footer-social">
@@ -193,8 +204,12 @@
         </div>
       </div>
       <div class="container footer-meta">
-        <span>&copy; <span id="year"></span> Dr. Ali Psychiatry</span>
+        <span>&copy; <span id="year"></span> General Psychiatry Services</span>
       </div>
     </footer>
   </body>
 </html>
+
+
+
+

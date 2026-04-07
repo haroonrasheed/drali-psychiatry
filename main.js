@@ -12,11 +12,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const appointmentName = appointmentOverlay ? appointmentOverlay.querySelector('#modal-name') : null;
 
   if (menuToggle && nav) {
+    const navDropdowns = nav.querySelectorAll('.nav-dropdown');
+
+    const closeNavDropdowns = () => {
+      navDropdowns.forEach((dropdown) => {
+        dropdown.classList.remove('open');
+        const toggle = dropdown.querySelector('.nav-dropdown-toggle');
+        if (toggle) toggle.setAttribute('aria-expanded', 'false');
+      });
+    };
+
     const setNavOpen = (open) => {
       nav.classList.toggle('active', open);
       menuToggle.setAttribute('aria-expanded', String(open));
       menuToggle.classList.toggle('is-open', open);
       menuToggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+      if (!open) closeNavDropdowns();
     };
 
     // Add a dedicated close control inside the mobile menu (mobile/tablet only)
@@ -47,16 +58,41 @@ document.addEventListener('DOMContentLoaded', () => {
       setNavOpen(!isExpanded);
     });
 
+    navDropdowns.forEach((dropdown) => {
+      const toggle = dropdown.querySelector('.nav-dropdown-toggle');
+      if (!toggle) return;
+
+      toggle.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const isOpen = dropdown.classList.contains('open');
+        closeNavDropdowns();
+        if (!isOpen) {
+          dropdown.classList.add('open');
+          toggle.setAttribute('aria-expanded', 'true');
+        }
+      });
+
+      dropdown.querySelectorAll('.nav-dropdown-item').forEach((item) => {
+        item.addEventListener('click', () => closeNavDropdowns());
+      });
+    });
+
     nav.querySelectorAll('a').forEach((link) => {
       link.addEventListener('click', () => {
         if (nav.classList.contains('active')) setNavOpen(false);
       });
     });
 
+    document.addEventListener('click', (event) => {
+      if (!nav.contains(event.target)) closeNavDropdowns();
+    });
+
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && nav.classList.contains('active')) {
         setNavOpen(false);
       }
+      if (e.key === 'Escape') closeNavDropdowns();
     });
   }
 
@@ -217,6 +253,418 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   attachContactForms();
+
+  const newPatientForm = document.querySelector('[data-new-patient-form]');
+  if (newPatientForm) {
+    const newPatientStatus = newPatientForm.querySelector('.form-status');
+    const newPatientSubmit = newPatientForm.querySelector('button[type="submit"]');
+
+    const setNewPatientStatus = (message, state) => {
+      if (!newPatientStatus) return;
+      newPatientStatus.textContent = message;
+      newPatientStatus.classList.remove('success', 'error', 'pending');
+      if (state) newPatientStatus.classList.add(state);
+    };
+
+    const setNewPatientSending = (sending) => {
+      if (!newPatientSubmit) return;
+      if (sending) {
+        newPatientSubmit.dataset.originalText = newPatientSubmit.textContent;
+        newPatientSubmit.textContent = 'Sending...';
+        newPatientSubmit.disabled = true;
+      } else {
+        newPatientSubmit.textContent = newPatientSubmit.dataset.originalText || newPatientSubmit.textContent;
+        newPatientSubmit.disabled = false;
+      }
+    };
+
+    newPatientForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const formData = new FormData(newPatientForm);
+      const payload = {
+        firstName: (formData.get('firstName') || '').trim(),
+        lastName: (formData.get('lastName') || '').trim(),
+        phone: (formData.get('phone') || '').trim(),
+        email: (formData.get('email') || '').trim(),
+        provider: (formData.get('provider') || '').trim(),
+        appointmentType: (formData.get('appointmentType') || '').trim(),
+        insurance: (formData.get('insurance') || '').trim(),
+        concern: (formData.get('concern') || '').trim(),
+        location: (formData.get('location') || '').trim(),
+        heardAbout: (formData.get('heardAbout') || '').trim(),
+      };
+
+      if (
+        !payload.firstName ||
+        !payload.lastName ||
+        !payload.phone ||
+        !payload.email ||
+        !payload.provider ||
+        !payload.appointmentType ||
+        !payload.insurance ||
+        !payload.concern ||
+        !payload.location ||
+        !payload.heardAbout
+      ) {
+        setNewPatientStatus('Please complete all required fields.', 'error');
+        return;
+      }
+
+      const outbound = {
+        name: `${payload.firstName} ${payload.lastName}`.trim(),
+        email: payload.email,
+        phone: payload.phone,
+        message: payload.concern,
+        formType: (formData.get('formType') || 'new_patient').toString(),
+        ...payload,
+      };
+
+      setNewPatientStatus('Sending...', 'pending');
+      setNewPatientSending(true);
+
+      try {
+        const response = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          mode: 'cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(outbound),
+        });
+
+        if (response.type === 'opaque') {
+          setNewPatientStatus('Thank you. Your request was sent.', 'success');
+          newPatientForm.reset();
+        } else {
+          const data = await response.json().catch(() => ({}));
+          if (response.ok && data.ok !== false) {
+            setNewPatientStatus('Thank you. Your request was sent.', 'success');
+            newPatientForm.reset();
+          } else {
+            setNewPatientStatus('We could not send your request. Please try again or call the clinic.', 'error');
+          }
+        }
+      } catch (error) {
+        try {
+          await fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(outbound),
+          });
+          setNewPatientStatus('Thank you. Your request was sent.', 'success');
+          newPatientForm.reset();
+        } catch (err) {
+          setNewPatientStatus('Network error. Please try again or call the clinic.', 'error');
+        }
+      } finally {
+        setNewPatientSending(false);
+      }
+    });
+  }
+
+  const cancelForm = document.querySelector('[data-cancel-form]');
+  if (cancelForm) {
+    const cancelStatus = cancelForm.querySelector('.form-status');
+    const cancelSubmit = cancelForm.querySelector('button[type="submit"]');
+
+    const setCancelStatus = (message, state) => {
+      if (!cancelStatus) return;
+      cancelStatus.textContent = message;
+      cancelStatus.classList.remove('success', 'error', 'pending');
+      if (state) cancelStatus.classList.add(state);
+    };
+
+    const setCancelSending = (sending) => {
+      if (!cancelSubmit) return;
+      if (sending) {
+        cancelSubmit.dataset.originalText = cancelSubmit.textContent;
+        cancelSubmit.textContent = 'Sending...';
+        cancelSubmit.disabled = true;
+      } else {
+        cancelSubmit.textContent = cancelSubmit.dataset.originalText || cancelSubmit.textContent;
+        cancelSubmit.disabled = false;
+      }
+    };
+
+    cancelForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const formData = new FormData(cancelForm);
+      const payload = {
+        firstName: (formData.get('firstName') || '').trim(),
+        lastName: (formData.get('lastName') || '').trim(),
+        dob: (formData.get('dob') || '').trim(),
+        phone: (formData.get('phone') || '').trim(),
+        provider: (formData.get('provider') || '').trim(),
+        appointmentDate: (formData.get('appointmentDate') || '').trim(),
+        appointmentTime: (formData.get('appointmentTime') || '').trim(),
+        appointmentType: (formData.get('appointmentType') || '').trim(),
+        location: (formData.get('location') || '').trim(),
+        reason: (formData.get('reason') || '').trim(),
+      };
+
+      if (
+        !payload.firstName ||
+        !payload.lastName ||
+        !payload.dob ||
+        !payload.phone ||
+        !payload.provider ||
+        !payload.appointmentDate ||
+        !payload.appointmentTime ||
+        !payload.appointmentType ||
+        !payload.location ||
+        !payload.reason
+      ) {
+        setCancelStatus('Please complete all required fields.', 'error');
+        return;
+      }
+
+      const outbound = {
+        name: `${payload.firstName} ${payload.lastName}`.trim(),
+        email: '',
+        phone: payload.phone,
+        message: payload.reason,
+        formType: (formData.get('formType') || 'cancel_appointment').toString(),
+        ...payload,
+      };
+
+      setCancelStatus('Sending...', 'pending');
+      setCancelSending(true);
+
+      try {
+        const response = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          mode: 'cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(outbound),
+        });
+
+        if (response.type === 'opaque') {
+          setCancelStatus('Thank you. Your cancellation request was sent.', 'success');
+          cancelForm.reset();
+        } else {
+          const data = await response.json().catch(() => ({}));
+          if (response.ok && data.ok !== false) {
+            setCancelStatus('Thank you. Your cancellation request was sent.', 'success');
+            cancelForm.reset();
+          } else {
+            setCancelStatus('We could not send your request. Please call the clinic.', 'error');
+          }
+        }
+      } catch (error) {
+        try {
+          await fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(outbound),
+          });
+          setCancelStatus('Thank you. Your cancellation request was sent.', 'success');
+          cancelForm.reset();
+        } catch (err) {
+          setCancelStatus('Network error. Please try again or call the clinic.', 'error');
+        }
+      } finally {
+        setCancelSending(false);
+      }
+    });
+  }
+
+  const refillForm = document.querySelector('[data-refill-form]');
+  if (refillForm) {
+    const refillStatus = refillForm.querySelector('.form-status');
+    const refillSubmit = refillForm.querySelector('button[type="submit"]');
+
+    const setRefillStatus = (message, state) => {
+      if (!refillStatus) return;
+      refillStatus.textContent = message;
+      refillStatus.classList.remove('success', 'error', 'pending');
+      if (state) refillStatus.classList.add(state);
+    };
+
+    const setRefillSending = (sending) => {
+      if (!refillSubmit) return;
+      if (sending) {
+        refillSubmit.dataset.originalText = refillSubmit.textContent;
+        refillSubmit.textContent = 'Sending...';
+        refillSubmit.disabled = true;
+      } else {
+        refillSubmit.textContent = refillSubmit.dataset.originalText || refillSubmit.textContent;
+        refillSubmit.disabled = false;
+      }
+    };
+
+    refillForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const formData = new FormData(refillForm);
+      const payload = {
+        firstName: (formData.get('firstName') || '').trim(),
+        lastName: (formData.get('lastName') || '').trim(),
+        dob: (formData.get('dob') || '').trim(),
+        phone: (formData.get('phone') || '').trim(),
+        provider: (formData.get('provider') || '').trim(),
+        medication: (formData.get('medication') || '').trim(),
+        dosage: (formData.get('dosage') || '').trim(),
+        pharmacyName: (formData.get('pharmacyName') || '').trim(),
+        pharmacyPhone: (formData.get('pharmacyPhone') || '').trim(),
+        concern: (formData.get('concern') || '').trim(),
+      };
+
+      if (
+        !payload.firstName ||
+        !payload.lastName ||
+        !payload.dob ||
+        !payload.phone ||
+        !payload.provider ||
+        !payload.medication ||
+        !payload.dosage ||
+        !payload.pharmacyName ||
+        !payload.pharmacyPhone ||
+        !payload.concern
+      ) {
+        setRefillStatus('Please complete all required fields.', 'error');
+        return;
+      }
+
+      const outbound = {
+        name: `${payload.firstName} ${payload.lastName}`.trim(),
+        email: '',
+        phone: payload.phone,
+        message: payload.concern,
+        formType: (formData.get('formType') || 'refill_request').toString(),
+        ...payload,
+      };
+
+      setRefillStatus('Sending...', 'pending');
+      setRefillSending(true);
+
+      try {
+        const response = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          mode: 'cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(outbound),
+        });
+
+        if (response.type === 'opaque') {
+          setRefillStatus('Thank you. Your refill request was sent.', 'success');
+          refillForm.reset();
+        } else {
+          const data = await response.json().catch(() => ({}));
+          if (response.ok && data.ok !== false) {
+            setRefillStatus('Thank you. Your refill request was sent.', 'success');
+            refillForm.reset();
+          } else {
+            setRefillStatus('We could not send your request. Please call the clinic.', 'error');
+          }
+        }
+      } catch (error) {
+        try {
+          await fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(outbound),
+          });
+          setRefillStatus('Thank you. Your refill request was sent.', 'success');
+          refillForm.reset();
+        } catch (err) {
+          setRefillStatus('Network error. Please try again or call the clinic.', 'error');
+        }
+      } finally {
+        setRefillSending(false);
+      }
+    });
+  }
+
+  const billingForm = document.querySelector('[data-billing-form]');
+  if (billingForm) {
+    const billingStatus = billingForm.querySelector('.form-status');
+    const billingSubmit = billingForm.querySelector('button[type="submit"]');
+
+    const setBillingStatus = (message, state) => {
+      if (!billingStatus) return;
+      billingStatus.textContent = message;
+      billingStatus.classList.remove('success', 'error', 'pending');
+      if (state) billingStatus.classList.add(state);
+    };
+
+    const setBillingSending = (sending) => {
+      if (!billingSubmit) return;
+      if (sending) {
+        billingSubmit.dataset.originalText = billingSubmit.textContent;
+        billingSubmit.textContent = 'Sending...';
+        billingSubmit.disabled = true;
+      } else {
+        billingSubmit.textContent = billingSubmit.dataset.originalText || billingSubmit.textContent;
+        billingSubmit.disabled = false;
+      }
+    };
+
+    billingForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const formData = new FormData(billingForm);
+      const payload = {
+        firstName: (formData.get('firstName') || '').trim(),
+        lastName: (formData.get('lastName') || '').trim(),
+        dob: (formData.get('dob') || '').trim(),
+        phone: (formData.get('phone') || '').trim(),
+        concern: (formData.get('concern') || '').trim(),
+      };
+
+      if (!payload.firstName || !payload.lastName || !payload.dob || !payload.phone || !payload.concern) {
+        setBillingStatus('Please complete all required fields.', 'error');
+        return;
+      }
+
+      const outbound = {
+        name: `${payload.firstName} ${payload.lastName}`.trim(),
+        email: '',
+        phone: payload.phone,
+        message: payload.concern,
+        formType: (formData.get('formType') || 'billing_questions').toString(),
+        ...payload,
+      };
+
+      setBillingStatus('Sending...', 'pending');
+      setBillingSending(true);
+
+      try {
+        const response = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          mode: 'cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(outbound),
+        });
+
+        if (response.type === 'opaque') {
+          setBillingStatus('Thank you. Your billing question was sent.', 'success');
+          billingForm.reset();
+        } else {
+          const data = await response.json().catch(() => ({}));
+          if (response.ok && data.ok !== false) {
+            setBillingStatus('Thank you. Your billing question was sent.', 'success');
+            billingForm.reset();
+          } else {
+            setBillingStatus('We could not send your request. Please call the clinic.', 'error');
+          }
+        }
+      } catch (error) {
+        try {
+          await fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(outbound),
+          });
+          setBillingStatus('Thank you. Your billing question was sent.', 'success');
+          billingForm.reset();
+        } catch (err) {
+          setBillingStatus('Network error. Please try again or call the clinic.', 'error');
+        }
+      } finally {
+        setBillingSending(false);
+      }
+    });
+  }
 
   // Chatbox toggle and dummy submit
   const chatToggle = document.querySelector('.chat-toggle');

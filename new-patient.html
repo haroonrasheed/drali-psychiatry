@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Appointments & Contact | Kishwar Ali, MD</title>
-    <meta name="description" content="Request a confidential appointment with Kishwar Ali, MD in Aurora, Illinois. In-person and telepsychiatry options available." />
+    <title>New Patient | General Psychiatry Services</title>
+    <meta name="description" content="New patient appointment request form for General Psychiatry Services in Aurora, Illinois." />
     <link rel="icon" type="image/png" href="favicon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -39,76 +39,140 @@
           <a class="nav-link" href="privacy.html">Privacy</a>
           <span class="nav-right">
             <a class="nav-link" href="tel:+16308981031">Call Clinic</a>
-            <a class="btn nav-btn solid" href="#main">Book Appointment</a>
+            <a class="btn nav-btn solid" href="#new-patient-form">Book Appointment</a>
           </span>
         </nav>
       </div>
     </header>
 
-    <main id="main">
-      <section class="section section-contrast" style="padding-top:140px; padding-bottom:60px;">
+        <main id="main" class="new-patient-page">
+      <section class="new-patient-hero">
+        <div class="container new-patient-hero-inner">
+          <h1>New Patient</h1>
+          <p class="new-patient-breadcrumb"><a href="index.html#top">Home</a> <span aria-hidden="true">&#8250;</span> <span>New Patient</span></p>
+        </div>
+      </section>
+
+      <section class="section new-patient-actions" aria-label="Appointment actions for new patients">
         <div class="container">
-          <div class="panel">
-            <p class="eyebrow">Appointments</p>
-            <h1>Appointments &amp; Contact</h1>
-            <p class="lede">Reach out to request a confidential appointment. This form is not for emergencies.</p>
+          <div class="new-patient-card-shell">
+            <div class="new-patient-action-grid">
+              <article class="new-patient-action request">
+                <span class="new-patient-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" role="presentation">
+                    <rect x="3.5" y="5.5" width="17" height="15" rx="3"></rect>
+                    <path d="M8 3.5v4M16 3.5v4M3.5 9.5h17M8.8 14.2l2.1 2.1 4.3-4.2"></path>
+                  </svg>
+                </span>
+                <h3>Request Appointment</h3>
+                <p>For New Patients</p>
+              </article>
+              <a class="new-patient-action cancel" href="cancel-appointment.html">
+                <span class="new-patient-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" role="presentation">
+                    <rect x="3.5" y="5.5" width="17" height="15" rx="3"></rect>
+                    <path d="M8 3.5v4M16 3.5v4M3.5 9.5h17M10 13.4l4.2 4.2M14.2 13.4 10 17.6"></path>
+                  </svg>
+                </span>
+                <h3>Cancel Appointment</h3>
+                <p>For New Patients</p>
+              </a>
+              <a class="new-patient-action reschedule" href="reschedule-appointment.html">
+                <span class="new-patient-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" role="presentation">
+                    <circle cx="12" cy="13" r="6.5"></circle>
+                    <path d="M12 9.5v3.4l2.4 1.6M7.1 5.8H3.9V2.6M3.9 6.1A8.6 8.6 0 0 1 20 9.3"></path>
+                  </svg>
+                </span>
+                <h3>Re-schedule Appointment</h3>
+                <p>For New Patients</p>
+              </a>
+            </div>
           </div>
         </div>
       </section>
 
-      <section class="section" style="padding-top:50px;">
-        <div class="container grid-2">
-          <div id="existing-patient">
-            <p class="eyebrow">Contact the office</p>
-            <h2>Contact the office</h2>
-            <p><strong>Phone:</strong> <a href="tel:+16308981031">(630) 898-1031</a></p>
-            <p><strong>Text:</strong> <a href="sms:+16304234210">(630) 423-4210</a></p>
-            <p><strong>Fax:</strong> <a href="tel:+16308980984">(630) 898-0984</a></p>
-            <p><strong>Location:</strong> 3845 McCoy Dr, Suite 109, Aurora, IL 60504</p>
-            <p><strong>Email:</strong> care@kishwaralipsychiatry.com</p>
-            <p><strong>Office hours:</strong> Mon-Fri, 9:00 AM - 5:00 PM</p>
-            <div class="panel" style="margin-top:16px;">
-              If you are experiencing a medical or psychiatric emergency, call 911 or go to the nearest emergency room.
-            </div>
-            <div class="panel" style="margin-top:12px;">
-              Form submissions are reviewed during business hours. Please avoid sensitive personal details; intake will be completed on a secure channel.
-            </div>
-          </div>
-          <div class="panel highlight" id="new-patient">
-            <h2>Request appointment</h2>
-            <form class="form" id="contact-form" data-contact-form>
-            <div class="form-group">
-              <label for="name">Full Name</label>
-              <input id="name" name="name" type="text" placeholder="Your full name" autocomplete="name" required />
-            </div>
-            <div class="form-group">
-              <label for="phone">Phone</label>
-              <input id="phone" name="phone" type="tel" placeholder="(###) ###-####" autocomplete="tel" inputmode="tel" />
-            </div>
-            <div class="form-group">
-              <label for="email">Email</label>
-              <input id="email" name="email" type="email" placeholder="you@example.com" autocomplete="email" required />
-            </div>
-            <div class="form-group">
-              <label for="message">Brief Message (do not include sensitive details)</label>
-              <textarea id="message" name="message" rows="4" placeholder="Share the reason for your visit and preferred times." autocomplete="off" required></textarea>
-            </div>
-              <button class="btn solid" type="submit">Submit Request</button>
-              <p class="form-note">This form sends your request to the clinic. Please avoid sensitive medical or financial information; intake will be completed on a secure channel.</p>
-              <p class="form-note form-disclaimer">For confidentiality, please do not share diagnoses, medications, or protected health information in this form. You will complete intake on a secure channel.</p>
+      <section class="section new-patient-form-wrap" id="new-patient-form">
+        <div class="container">
+          <div class="new-patient-form-panel">
+            <h2>Take Care of Your Behavioral Health</h2>
+            <form class="new-patient-form" data-new-patient-form>
+              <div class="new-patient-field-grid">
+                <div class="new-patient-field">
+                  <label for="np-first-name">First Name</label>
+                  <input id="np-first-name" name="firstName" type="text" placeholder="First Name" autocomplete="given-name" required />
+                </div>
+                <div class="new-patient-field">
+                  <label for="np-last-name">Last Name</label>
+                  <input id="np-last-name" name="lastName" type="text" placeholder="Last Name" autocomplete="family-name" required />
+                </div>
+                <div class="new-patient-field">
+                  <label for="np-phone">Phone</label>
+                  <input id="np-phone" name="phone" type="tel" placeholder="Phone (xxx) xxx-xxxx" autocomplete="tel" inputmode="tel" required />
+                </div>
+                <div class="new-patient-field">
+                  <label for="np-email">Email</label>
+                  <input id="np-email" name="email" type="email" placeholder="Email Address" autocomplete="email" required />
+                </div>
+                <div class="new-patient-field field-full">
+                  <label for="np-provider">Your Provider</label>
+                  <select id="np-provider" name="provider" required>
+                    <option value="" selected disabled>Select Your Provider...</option>
+                    <option value="Dr. Kishwar Ali">Dr. Kishwar Ali</option>
+                    <option value="First Available">First Available</option>
+                  </select>
+                </div>
+                <div class="new-patient-field">
+                  <label for="np-appointment-type">Appointment Type</label>
+                  <select id="np-appointment-type" name="appointmentType" required>
+                    <option value="" selected disabled>Select Appointment Type</option>
+                    <option value="Initial Psychiatric Evaluation">Initial Psychiatric Evaluation</option>
+                    <option value="Telepsychiatry Consultation">Telepsychiatry Consultation</option>
+                    <option value="TMS Consultation">TMS Consultation</option>
+                  </select>
+                </div>
+                <div class="new-patient-field">
+                  <label for="np-insurance">Insurance</label>
+                  <select id="np-insurance" name="insurance" required>
+                    <option value="" selected disabled>Select insurance</option>
+                    <option value="Aetna">Aetna</option>
+                    <option value="Blue Cross Blue Shield">Blue Cross Blue Shield</option>
+                    <option value="Cigna">Cigna</option>
+                    <option value="United Healthcare">United Healthcare</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div class="new-patient-field field-full">
+                  <label for="np-concern">Your Concern</label>
+                  <textarea id="np-concern" name="concern" rows="7" placeholder="Your Concern" required></textarea>
+                </div>
+                <div class="new-patient-field">
+                  <label for="np-location">Appointment for Location</label>
+                  <select id="np-location" name="location" required>
+                    <option value="" selected disabled>Select Appointment Location</option>
+                    <option value="Aurora Office">Aurora Office</option>
+                    <option value="Telepsychiatry">Telepsychiatry</option>
+                  </select>
+                </div>
+                <div class="new-patient-field">
+                  <label for="np-heard-about">How you heard about us</label>
+                  <select id="np-heard-about" name="heardAbout" required>
+                    <option value="" selected disabled>Select Heard About Us</option>
+                    <option value="Google">Google</option>
+                    <option value="Referral">Referral</option>
+                    <option value="Insurance Directory">Insurance Directory</option>
+                    <option value="Social Media">Social Media</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+              </div>
+              <div class="new-patient-actions-row">
+                <button class="btn new-patient-submit" type="submit">
+                  Submit
+                </button>
+              </div>
               <div class="form-status" role="status" aria-live="polite"></div>
             </form>
-          </div>
-        </div>
-      </section>
-
-      <section class="section" id="intake-forms" style="padding-top:20px;">
-        <div class="container">
-          <div class="panel">
-            <p class="eyebrow">Intake Forms</p>
-            <h2>Need intake forms?</h2>
-            <p>Call or text the office and we will send the correct intake packet securely based on your visit type.</p>
-            <p><strong>Phone:</strong> <a href="tel:+16308981031">(630) 898-1031</a> &nbsp; <strong>Text:</strong> <a href="sms:+16304234210">(630) 423-4210</a></p>
           </div>
         </div>
       </section>
@@ -208,6 +272,8 @@
     </footer>
   </body>
 </html>
+
+
 
 
 

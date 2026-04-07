@@ -1,0 +1,151 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Reschedule Appointment | General Psychiatry Services</title>
+    <meta name="description" content="Reschedule appointment instructions for existing patients at General Psychiatry Services." />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+    <script defer src="main.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="topbar">
+      <div class="container nav-wrap">
+        <a class="brand" href="index.html#top">
+          <span class="brand-logo-text">General Psychiatry Services</span>
+          <img class="brand-logo-img" src="logo.png" alt="General Psychiatry Services logo" />
+        </a>
+        <button class="mobile-menu-toggle" aria-expanded="false" aria-controls="primary-nav">Menu</button>
+        <nav class="nav" id="primary-nav">
+          <a class="nav-link" href="index.html#top">Home</a>
+          <a class="nav-link" href="about.html">About</a>
+          <a class="nav-link" href="services.html">Services</a>
+          <a class="nav-link" href="conditions.html">Conditions</a>
+          <div class="nav-dropdown nav-dropdown-current">
+            <button class="nav-link nav-dropdown-toggle active" type="button" aria-expanded="false" aria-controls="appointments-menu">
+              Appointments
+            </button>
+            <div class="nav-dropdown-menu" id="appointments-menu">
+              <a class="nav-dropdown-item" href="new-patient.html">New Patient</a>
+              <a class="nav-dropdown-item" href="existing-patient.html">Existing Patient</a>
+              <a class="nav-dropdown-item" href="intake-forms.html">Intake Forms</a>
+            </div>
+          </div>
+          <a class="nav-link" href="privacy.html">Privacy</a>
+          <span class="nav-right">
+            <a class="nav-link" href="tel:+16308981031">Call Clinic</a>
+            <a class="btn nav-btn solid" href="tel:+16308981031">Book Appointment</a>
+          </span>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="new-patient-page">
+      <section class="new-patient-hero">
+        <div class="container new-patient-hero-inner">
+          <h1>Reschedule</h1>
+          <p class="new-patient-breadcrumb"><a href="index.html#top">Home</a> <span aria-hidden="true">&#8250;</span> <span>Reschedule Appointment</span></p>
+        </div>
+      </section>
+
+      <section class="section reschedule-wrap" id="existing-reschedule-appointment-info">
+        <div class="container">
+          <div class="reschedule-panel existing-reschedule-panel">
+            <p>
+              Please call the clinic directly at <a href="tel:+16308981031">(630) 898-1031</a>
+              to reschedule your appointment.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Appointment modal -->
+    <div class="modal-overlay" data-appointment-overlay hidden>
+      <div class="appointment-modal" role="dialog" aria-modal="true" aria-labelledby="appointment-modal-title">
+        <button class="modal-close" type="button" aria-label="Close appointment form" data-appointment-close>&times;</button>
+        <h2 id="appointment-modal-title">Request appointment</h2>
+        <form class="form" data-contact-form>
+          <div class="form-group">
+            <label for="modal-name">Full Name</label>
+            <input id="modal-name" name="name" type="text" placeholder="Your full name" autocomplete="name" required />
+          </div>
+          <div class="form-group">
+            <label for="modal-phone">Phone</label>
+            <input id="modal-phone" name="phone" type="tel" placeholder="(###) ###-####" autocomplete="tel" inputmode="tel" />
+          </div>
+          <div class="form-group">
+            <label for="modal-email">Email</label>
+            <input id="modal-email" name="email" type="email" placeholder="you@example.com" autocomplete="email" required />
+          </div>
+          <div class="form-group">
+            <label for="modal-message">Brief Message (do not include sensitive details)</label>
+            <textarea id="modal-message" name="message" rows="4" placeholder="Share the reason for your visit and preferred times." autocomplete="off" required></textarea>
+          </div>
+          <button type="submit" class="btn solid">Submit Request</button>
+          <div class="form-status" role="status" aria-live="polite"></div>
+          <p class="form-note">
+            This form sends your request to the clinic. Please avoid sensitive medical or financial information; intake will be completed on a secure channel.
+          </p>
+          <p class="form-note">
+            For confidentiality, please do not share diagnoses, medications, or protected health information in this form. You will complete intake on a secure channel.
+          </p>
+        </form>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <div class="container footer-grid">
+        <div>
+          <div class="footer-brand">
+            <img src="logo.png" alt="General Psychiatry Services logo" />
+            <span class="brand-logo-text">General Psychiatry Services</span>
+          </div>
+          <p class="footer-note">Confidential, compassionate psychiatric care in Aurora, IL.</p>
+          <p class="footer-note">3845 McCoy Dr, Suite 109<br />Aurora, IL 60504</p>
+          <p class="footer-note"><a href="tel:+16308981031">Phone: (630) 898-1031</a></p>
+          <p class="footer-note"><a href="sms:+16304234210">Text: (630) 423-4210</a></p>
+          <p class="footer-note"><a href="tel:+16308980984">Fax: (630) 898-0984</a></p>
+          <p class="footer-note"><a href="mailto:care@kishwaralipsychiatry.com">care@kishwaralipsychiatry.com</a></p>
+          <p class="footer-note small-print">Not for emergencies. If you are in crisis, call 911 or go to the nearest emergency room.</p>
+        </div>
+        <div>
+          <p class="footer-title">Services</p>
+          <div class="footer-links">
+            <a href="services.html">Psychiatric Evaluation</a>
+            <a href="services.html">Medication Management</a>
+            <a href="services.html">Follow-up Consultations</a>
+            <a href="services.html">Telepsychiatry</a>
+          </div>
+        </div>
+        <div>
+          <p class="footer-title">Conditions</p>
+          <div class="footer-links">
+            <a href="conditions.html">Anxiety &amp; PTSD</a>
+            <a href="conditions.html">Depression &amp; Mood</a>
+            <a href="conditions.html">OCD &amp; ADHD</a>
+            <a href="conditions.html">Sleep &amp; Stress</a>
+          </div>
+        </div>
+        <div>
+          <p class="footer-title">Resources</p>
+          <div class="footer-links">
+            <a href="about.html">About Dr. Ali</a>
+            <a href="appointments.html">Appointments</a>
+            <a href="privacy.html">Privacy</a>
+            <a href="tel:+16308981031">Call (630) 898-1031</a>
+          </div>
+        </div>
+      </div>
+      <div class="container footer-meta">
+        <span>&copy; <span id="year"></span> General Psychiatry Services</span>
+      </div>
+    </footer>
+  </body>
+</html>
+
