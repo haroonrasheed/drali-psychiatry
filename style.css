@@ -1218,6 +1218,10 @@ h3 {
   background: transparent;
 }
 
+#new-patient-form {
+  scroll-margin-top: 110px;
+}
+
 .new-patient-form-panel {
   background: rgba(255, 255, 255, 0.96);
   border-radius: 18px;
