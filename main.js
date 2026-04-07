@@ -1,6 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
   // Google Apps Script Web App endpoint (shared across forms)
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwNRYbovo9BBizFYJC2Vmqayjamkmv17OvERDeyo3iVV9b7bdkT9AzXgPrCYYnFbLyirw/exec';
+  const formatDetailsMessage = (details) =>
+    details
+      .filter(([, value]) => String(value || '').trim())
+      .map(([label, value]) => `${label}: ${String(value).trim()}`)
+      .join('\n');
 
   const menuToggle = document.querySelector('.mobile-menu-toggle');
   const nav = document.querySelector('.nav');
@@ -314,7 +319,18 @@ document.addEventListener('DOMContentLoaded', () => {
         name: `${payload.firstName} ${payload.lastName}`.trim(),
         email: payload.email,
         phone: payload.phone,
-        message: payload.concern,
+        message: formatDetailsMessage([
+          ['First Name', payload.firstName],
+          ['Last Name', payload.lastName],
+          ['Phone', payload.phone],
+          ['Email', payload.email],
+          ['Provider', payload.provider],
+          ['Appointment Type', payload.appointmentType],
+          ['Insurance', payload.insurance],
+          ['Location', payload.location],
+          ['How You Heard About Us', payload.heardAbout],
+          ['Concern', payload.concern],
+        ]),
         formType: (formData.get('formType') || 'new_patient').toString(),
         ...payload,
       };
@@ -421,7 +437,18 @@ document.addEventListener('DOMContentLoaded', () => {
         name: `${payload.firstName} ${payload.lastName}`.trim(),
         email: '',
         phone: payload.phone,
-        message: payload.reason,
+        message: formatDetailsMessage([
+          ['First Name', payload.firstName],
+          ['Last Name', payload.lastName],
+          ['Date of Birth', payload.dob],
+          ['Phone', payload.phone],
+          ['Provider', payload.provider],
+          ['Appointment Date', payload.appointmentDate],
+          ['Appointment Time', payload.appointmentTime],
+          ['Appointment Type', payload.appointmentType],
+          ['Location', payload.location],
+          ['Reason', payload.reason],
+        ]),
         formType: (formData.get('formType') || 'cancel_appointment').toString(),
         ...payload,
       };
@@ -528,7 +555,18 @@ document.addEventListener('DOMContentLoaded', () => {
         name: `${payload.firstName} ${payload.lastName}`.trim(),
         email: '',
         phone: payload.phone,
-        message: payload.concern,
+        message: formatDetailsMessage([
+          ['First Name', payload.firstName],
+          ['Last Name', payload.lastName],
+          ['Date of Birth', payload.dob],
+          ['Phone', payload.phone],
+          ['Provider', payload.provider],
+          ['Medication', payload.medication],
+          ['Dosage', payload.dosage],
+          ['Pharmacy Name', payload.pharmacyName],
+          ['Pharmacy Phone', payload.pharmacyPhone],
+          ['Concern', payload.concern],
+        ]),
         formType: (formData.get('formType') || 'refill_request').toString(),
         ...payload,
       };
@@ -619,7 +657,13 @@ document.addEventListener('DOMContentLoaded', () => {
         name: `${payload.firstName} ${payload.lastName}`.trim(),
         email: '',
         phone: payload.phone,
-        message: payload.concern,
+        message: formatDetailsMessage([
+          ['First Name', payload.firstName],
+          ['Last Name', payload.lastName],
+          ['Date of Birth', payload.dob],
+          ['Phone', payload.phone],
+          ['Question', payload.concern],
+        ]),
         formType: (formData.get('formType') || 'billing_questions').toString(),
         ...payload,
       };
