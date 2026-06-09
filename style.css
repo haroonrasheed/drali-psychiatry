@@ -245,10 +245,12 @@ h3 {
 }
 
 .brand-logo-img {
-  height: 50px;
-  width: auto;
+  height: 40px;
+  width: 40px;
   display: block;
   object-fit: contain;
+  border-radius: 8px;
+  flex-shrink: 0;
 }
 
 .brand-logo-text {
@@ -3551,7 +3553,7 @@ h3 {
 
   .chat-toggle {
     right: 16px;
-    bottom: 16px;
+    bottom: 80px;
   }
 
   .chatbox {
@@ -3583,7 +3585,8 @@ h3 {
   }
 
   .brand-logo-img {
-    height: 42px;
+    height: 34px;
+    width: 34px;
   }
 
   .brand-logo-text {
