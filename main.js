@@ -1,4 +1,49 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // ── Intake Form Dropdown ──
+  const intakeForms = {
+    adult: [
+      { label: 'New Patient Packet', file: 'New Patient Package.pdf' }
+    ],
+    adolescent: [
+      { label: 'New Patient Packet', file: 'New Patient Package.pdf' },
+      { label: 'ADHD Rating Scale IV — With Adolescent Prompts', file: 'ADHD Rating Scale IV with Adolescent Prompts.pdf' }
+    ]
+  };
+
+  const typeSelect   = document.getElementById('intake-type-select');
+  const formGroup    = document.getElementById('intake-form-group');
+  const formSelect   = document.getElementById('intake-form-select');
+  const dlBtn        = document.getElementById('intake-download-btn');
+  const preview      = document.getElementById('intake-selected-preview');
+  const previewName  = document.getElementById('intake-selected-name');
+
+  if (typeSelect) {
+    typeSelect.addEventListener('change', () => {
+      const forms = intakeForms[typeSelect.value] || [];
+      formSelect.innerHTML = '<option value="" disabled selected>Select a form...</option>';
+      forms.forEach(({ label, file }) => {
+        const opt = document.createElement('option');
+        opt.value = file;
+        opt.textContent = label;
+        formSelect.appendChild(opt);
+      });
+      formGroup.hidden = false;
+      dlBtn.classList.add('intake-btn-disabled');
+      preview.hidden = true;
+    });
+
+    formSelect.addEventListener('change', () => {
+      if (formSelect.value) {
+        dlBtn.href = formSelect.value;
+        dlBtn.download = formSelect.value;
+        dlBtn.classList.remove('intake-btn-disabled');
+        previewName.textContent = formSelect.options[formSelect.selectedIndex].text;
+        preview.hidden = false;
+      }
+    });
+  }
+
+
   // Google Apps Script Web App endpoint (shared across forms)
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwNRYbovo9BBizFYJC2Vmqayjamkmv17OvERDeyo3iVV9b7bdkT9AzXgPrCYYnFbLyirw/exec';
   const formatDetailsMessage = (details) =>

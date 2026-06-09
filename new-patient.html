@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>New Patient | General Psychiatry Services</title>
     <meta name="description" content="New patient appointment request form for General Psychiatry Services in Aurora, Illinois." />
-    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="icon" type="image/jpeg" href="Logo2.jpg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -18,7 +18,7 @@
       <div class="container nav-wrap">
         <a class="brand" href="index.html#top">
           <span class="brand-logo-text">General Psychiatry Services</span>
-          <img class="brand-logo-img" src="logo.png" alt="General Psychiatry Services logo" />
+          <img class="brand-logo-img" src="Logo2.jpg" alt="General Psychiatry Services logo" />
         </a>
         <button class="mobile-menu-toggle" aria-expanded="false" aria-controls="primary-nav">Menu</button>
         <nav class="nav" id="primary-nav">
@@ -39,7 +39,7 @@
           <a class="nav-link" href="privacy.html">Privacy</a>
           <span class="nav-right">
             <a class="nav-link" href="tel:+16308981031">Call Clinic</a>
-            <a class="btn nav-btn solid" href="#new-patient-form">Book Appointment</a>
+            <a class="btn nav-btn solid" href="#new-patient-form" data-open-appointment>Book Appointment</a>
           </span>
         </nav>
       </div>
@@ -57,7 +57,7 @@
         <div class="container">
           <div class="new-patient-card-shell">
             <div class="new-patient-action-grid">
-              <a class="new-patient-action request" href="#new-patient-form">
+              <a class="new-patient-action request" href="#new-patient-form" data-open-appointment>
                 <span class="new-patient-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" role="presentation">
                     <rect x="3.5" y="5.5" width="17" height="15" rx="3"></rect>
@@ -67,7 +67,7 @@
                 <h3>Request Appointment</h3>
                 <p>For New Patients</p>
               </a>
-              <a class="new-patient-action cancel" href="cancel-appointment.html">
+              <a class="new-patient-action cancel" href="cancel-appointment.html#cancel-appointment-form">
                 <span class="new-patient-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" role="presentation">
                     <rect x="3.5" y="5.5" width="17" height="15" rx="3"></rect>
@@ -77,7 +77,7 @@
                 <h3>Cancel Appointment</h3>
                 <p>For New Patients</p>
               </a>
-              <a class="new-patient-action reschedule" href="reschedule-appointment.html">
+              <a class="new-patient-action reschedule" href="reschedule-appointment.html#reschedule-appointment-info">
                 <span class="new-patient-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" role="presentation">
                     <circle cx="12" cy="13" r="6.5"></circle>
@@ -92,11 +92,11 @@
         </div>
       </section>
 
-      <section class="section new-patient-form-wrap" id="new-patient-form">
+      <section class="section new-patient-form-wrap" id="new-patient-form" hidden>
         <div class="container">
           <div class="new-patient-form-panel">
             <h2>Take Care of Your Behavioral Health</h2>
-            <form class="new-patient-form" data-new-patient-form>
+            <form class="new-patient-form" data-new-patient-form-inline>
               <div class="new-patient-field-grid">
                 <div class="new-patient-field">
                   <label for="np-first-name">First Name</label>
@@ -128,18 +128,39 @@
                     <option value="" selected disabled>Select Appointment Type</option>
                     <option value="Initial Psychiatric Evaluation">Initial Psychiatric Evaluation</option>
                     <option value="Telepsychiatry Consultation">Telepsychiatry Consultation</option>
-                    <option value="TMS Consultation">TMS Consultation</option>
+                    <option value="TMS Consultation">TMS Consultation (Transcranial Magnetic Stimulation)</option>
                   </select>
                 </div>
                 <div class="new-patient-field">
                   <label for="np-insurance">Insurance</label>
                   <select id="np-insurance" name="insurance" required>
                     <option value="" selected disabled>Select insurance</option>
-                    <option value="Aetna">Aetna</option>
-                    <option value="Blue Cross Blue Shield">Blue Cross Blue Shield</option>
-                    <option value="Cigna">Cigna</option>
-                    <option value="United Healthcare">United Healthcare</option>
-                    <option value="Other">Other</option>
+                    <optgroup label="Blue Cross Blue Shield">
+                      <option value="BCBS Community">BCBS Community</option>
+                      <option value="BCBS HMO IHP (Illinois Health Partners)">BCBS HMO IHP (Illinois Health Partners)</option>
+                      <option value="BCBS Out of State">BCBS Out of State</option>
+                      <option value="BCBS PPO">BCBS PPO</option>
+                      <option value="BCBS Anthem">BCBS Anthem</option>
+                      <option value="BCBS / BC Medicare Advantage PPO">BCBS / BC Medicare Advantage PPO</option>
+                    </optgroup>
+                    <optgroup label="Cigna">
+                      <option value="Cigna">Cigna</option>
+                      <option value="Cigna HMO">Cigna HMO</option>
+                    </optgroup>
+                    <optgroup label="Medicare &amp; Public Aid">
+                      <option value="Medicare (Part A &amp; B)">Medicare (Part A &amp; B)</option>
+                      <option value="UHC Medicare">UHC Medicare</option>
+                      <option value="Medicare (Wellcare)">Medicare (Wellcare)</option>
+                      <option value="Meridian">Meridian</option>
+                      <option value="IDHS Public Aid (Secondary)">IDHS Public Aid (Secondary)</option>
+                      <option value="Public Aid (All Kids)">Public Aid (All Kids)</option>
+                      <option value="Medicaid (Immigrant Adult Program)">Medicaid (Immigrant Adult Program)</option>
+                      <option value="State Insurance IDPA">State Insurance IDPA</option>
+                    </optgroup>
+                    <optgroup label="Other">
+                      <option value="Humana">Humana</option>
+                      <option value="Other">Other</option>
+                    </optgroup>
                   </select>
                 </div>
                 <div class="new-patient-field field-full">
@@ -184,24 +205,101 @@
       <div class="appointment-modal" role="dialog" aria-modal="true" aria-labelledby="appointment-modal-title">
         <button class="modal-close" type="button" aria-label="Close appointment form" data-appointment-close>&times;</button>
         <h2 id="appointment-modal-title">Request appointment</h2>
-        <form class="form" data-contact-form>
-          <div class="form-group">
-            <label for="modal-name">Full Name</label>
-            <input id="modal-name" name="name" type="text" placeholder="Your full name" autocomplete="name" required />
+        <form class="new-patient-form" data-new-patient-form>
+          <div class="new-patient-field-grid">
+            <div class="new-patient-field">
+              <label for="modal-name">First Name</label>
+              <input id="modal-name" name="firstName" type="text" placeholder="First Name" autocomplete="given-name" required />
+            </div>
+            <div class="new-patient-field">
+              <label for="modal-last-name">Last Name</label>
+              <input id="modal-last-name" name="lastName" type="text" placeholder="Last Name" autocomplete="family-name" required />
+            </div>
+            <div class="new-patient-field">
+              <label for="modal-phone">Phone</label>
+              <input id="modal-phone" name="phone" type="tel" placeholder="Phone (xxx) xxx-xxxx" autocomplete="tel" inputmode="tel" required />
+            </div>
+            <div class="new-patient-field">
+              <label for="modal-email">Email</label>
+              <input id="modal-email" name="email" type="email" placeholder="Email Address" autocomplete="email" required />
+            </div>
+            <div class="new-patient-field field-full">
+              <label for="modal-provider">Your Provider</label>
+              <select id="modal-provider" name="provider" required>
+                <option value="" selected disabled>Select Your Provider...</option>
+                <option value="Dr. Kishwar Ali">Dr. Kishwar Ali</option>
+                <option value="First Available">First Available</option>
+              </select>
+            </div>
+            <div class="new-patient-field">
+              <label for="modal-appointment-type">Appointment Type</label>
+              <select id="modal-appointment-type" name="appointmentType" required>
+                <option value="" selected disabled>Select Appointment Type</option>
+                <option value="Initial Psychiatric Evaluation">Initial Psychiatric Evaluation</option>
+                <option value="Telepsychiatry Consultation">Telepsychiatry Consultation</option>
+                <option value="TMS Consultation">TMS Consultation (Transcranial Magnetic Stimulation)</option>
+              </select>
+            </div>
+            <div class="new-patient-field">
+              <label for="modal-insurance">Insurance</label>
+              <select id="modal-insurance" name="insurance" required>
+                <option value="" selected disabled>Select insurance</option>
+                <optgroup label="Blue Cross Blue Shield">
+                  <option value="BCBS Community">BCBS Community</option>
+                  <option value="BCBS HMO IHP (Illinois Health Partners)">BCBS HMO IHP (Illinois Health Partners)</option>
+                  <option value="BCBS Out of State">BCBS Out of State</option>
+                  <option value="BCBS PPO">BCBS PPO</option>
+                  <option value="BCBS Anthem">BCBS Anthem</option>
+                  <option value="BCBS / BC Medicare Advantage PPO">BCBS / BC Medicare Advantage PPO</option>
+                </optgroup>
+                <optgroup label="Cigna">
+                  <option value="Cigna">Cigna</option>
+                  <option value="Cigna HMO">Cigna HMO</option>
+                </optgroup>
+                <optgroup label="Medicare &amp; Public Aid">
+                  <option value="Medicare (Part A &amp; B)">Medicare (Part A &amp; B)</option>
+                  <option value="UHC Medicare">UHC Medicare</option>
+                  <option value="Medicare (Wellcare)">Medicare (Wellcare)</option>
+                  <option value="Meridian">Meridian</option>
+                  <option value="IDHS Public Aid (Secondary)">IDHS Public Aid (Secondary)</option>
+                  <option value="Public Aid (All Kids)">Public Aid (All Kids)</option>
+                  <option value="Medicaid (Immigrant Adult Program)">Medicaid (Immigrant Adult Program)</option>
+                  <option value="State Insurance IDPA">State Insurance IDPA</option>
+                </optgroup>
+                <optgroup label="Other">
+                  <option value="Humana">Humana</option>
+                  <option value="Other">Other</option>
+                </optgroup>
+              </select>
+            </div>
+            <div class="new-patient-field field-full">
+              <label for="modal-concern">Your Concern</label>
+              <textarea id="modal-concern" name="concern" rows="7" placeholder="Your Concern" required></textarea>
+            </div>
+            <div class="new-patient-field">
+              <label for="modal-location">Appointment for Location</label>
+              <select id="modal-location" name="location" required>
+                <option value="" selected disabled>Select Appointment Location</option>
+                <option value="Aurora Office">Aurora Office</option>
+                <option value="Telepsychiatry">Telepsychiatry</option>
+              </select>
+            </div>
+            <div class="new-patient-field">
+              <label for="modal-heard-about">How you heard about us</label>
+              <select id="modal-heard-about" name="heardAbout" required>
+                <option value="" selected disabled>Select Heard About Us</option>
+                <option value="Google">Google</option>
+                <option value="Referral">Referral</option>
+                <option value="Insurance Directory">Insurance Directory</option>
+                <option value="Social Media">Social Media</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
           </div>
-          <div class="form-group">
-            <label for="modal-phone">Phone</label>
-            <input id="modal-phone" name="phone" type="tel" placeholder="(###) ###-####" autocomplete="tel" inputmode="tel" />
+          <input type="hidden" name="formType" value="new_patient" />
+          <div class="new-patient-actions-row">
+            <button class="btn new-patient-submit" type="submit">Submit</button>
           </div>
-          <div class="form-group">
-            <label for="modal-email">Email</label>
-            <input id="modal-email" name="email" type="email" placeholder="you@example.com" autocomplete="email" required />
-          </div>
-          <div class="form-group">
-            <label for="modal-message">Brief Message (do not include sensitive details)</label>
-            <textarea id="modal-message" name="message" rows="4" placeholder="Share the reason for your visit and preferred times." autocomplete="off" required></textarea>
-          </div>
-          <button type="submit" class="btn solid">Submit Request</button>
           <div class="form-status" role="status" aria-live="polite"></div>
           <p class="form-note">
             This form sends your request to the clinic. Please avoid sensitive medical or financial information; intake will be completed on a secure channel.
@@ -217,15 +315,10 @@
       <div class="container footer-grid">
         <div>
           <div class="footer-brand">
-            <img src="logo.png" alt="General Psychiatry Services logo" />
+            <img src="Logo2.jpg" alt="General Psychiatry Services logo" />
             <span class="brand-logo-text">General Psychiatry Services</span>
           </div>
           <p class="footer-note">Confidential, compassionate psychiatric care in Aurora, IL.</p>
-          <p class="footer-note">3845 McCoy Dr, Suite 109<br />Aurora, IL 60504</p>
-          <p class="footer-note"><a href="tel:+16308981031">Phone: (630) 898-1031</a></p>
-          <p class="footer-note"><a href="sms:+16304234210">Text: (630) 423-4210</a></p>
-          <p class="footer-note"><a href="tel:+16308980984">Fax: (630) 898-0984</a></p>
-          <p class="footer-note"><a href="mailto:care@kishwaralipsychiatry.com">care@kishwaralipsychiatry.com</a></p>
           <p class="footer-note small-print">Not for emergencies. If you are in crisis, call 911 or go to the nearest emergency room.</p>
         </div>
         <div>
@@ -238,21 +331,32 @@
           </div>
         </div>
         <div>
-          <p class="footer-title">Conditions</p>
-          <div class="footer-links">
-            <a href="conditions.html">Anxiety &amp; PTSD</a>
-            <a href="conditions.html">Depression &amp; Mood</a>
-            <a href="conditions.html">OCD &amp; ADHD</a>
-            <a href="conditions.html">Sleep &amp; Stress</a>
-          </div>
-        </div>
-        <div>
           <p class="footer-title">Resources</p>
           <div class="footer-links">
             <a href="about.html">About Dr. Ali</a>
             <a href="appointments.html">Appointments</a>
             <a href="privacy.html">Privacy</a>
             <a href="tel:+16308981031">Call (630) 898-1031</a>
+          </div>
+        </div>
+        <div>
+          <p class="footer-title">Contact Info</p>
+          <div class="footer-links footer-contact">
+            <span>Address: 3845 McCoy Dr, Suite 109<br />Aurora, IL 60504</span>
+            <a href="tel:+16308981031">Phone: (630) 898-1031</a>
+            <a href="sms:+16304236210">Text: (630) 423-6210</a>
+            <a href="tel:+16308980984">Fax: (630) 898-0984</a>
+            <a href="mailto:care@kishwaralipsychiatry.com">care@kishwaralipsychiatry.com</a>
+          </div>
+        </div>
+        <div>
+          <p class="footer-title">Working Hours</p>
+          <div class="footer-links footer-hours">
+            <span>Monday: 10:00 AM - 04:00 PM</span>
+            <span>Tuesday: 10:00 AM- 06:00 PM</span>
+            <span>Wednesday: OFF</span>
+            <span>Thursday 10:00 AM - 6:00 PM</span>
+            <span>Friday- 10:00 AM - 12:00 PM</span>
           </div>
         </div>
         <div class="footer-social">
@@ -269,6 +373,17 @@
       </div>
       <div class="container footer-meta">
         <span>&copy; <span id="year"></span> General Psychiatry Services</span>
+        <div class="footer-meta-social">
+          <a href="https://www.facebook.com" aria-label="Facebook" target="_blank" rel="noreferrer">
+            <img src="data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='12' cy='12' r='12' fill='%230fb57a'/%3E%3Cpath d='M13.41 12.04h1.35l.21-1.63h-1.56V9.33c0-.47.14-.8.83-.8h.89V7.06c-.42-.05-.94-.08-1.51-.08-1.49 0-2.51.78-2.51 2.67v1.22H9.44v1.63h1.67v4.35h2.3v-4.35Z' fill='white'/%3E%3C/svg%3E" alt="Facebook" />
+          </a>
+          <a href="https://www.linkedin.com" aria-label="LinkedIn" target="_blank" rel="noreferrer">
+            <img src="data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='12' cy='12' r='12' fill='%230fb57a'/%3E%3Cpath d='M8.12 10.06v6.05H5.84v-6.05h2.28Zm.16-2.07c0 .67-.52 1.19-1.34 1.19h-.02c-.8 0-1.32-.52-1.32-1.19 0-.68.53-1.19 1.35-1.19.82 0 1.32.51 1.33 1.19Zm9.08 8.12h-2.29v-3.24c0-.81-.29-1.37-1.03-1.37-.56 0-.9.38-1.05.75-.05.13-.06.32-.06.51v3.35H10.6s.03-5.44 0-6.05h2.29v.86c.3-.46.84-1.1 2.05-1.1 1.5 0 2.63.98 2.63 3.09v3.2Z' fill='white'/%3E%3C/svg%3E" alt="LinkedIn" />
+          </a>
+          <a href="https://www.twitter.com" aria-label="Twitter" target="_blank" rel="noreferrer">
+            <img src="data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='12' cy='12' r='12' fill='%230fb57a'/%3E%3Cpath d='M17.87 8.48a3.51 3.51 0 0 1-1 .27 1.77 1.77 0 0 0 .77-.98 3.52 3.52 0 0 1-1.12.43 1.76 1.76 0 0 0-3 1.2c0 .14.02.27.04.4a4.98 4.98 0 0 1-3.61-1.83 1.75 1.75 0 0 0 .54 2.34 1.76 1.76 0 0 1-.8-.22v.02c0 .85.61 1.57 1.43 1.74-.15.04-.32.06-.48.06-.12 0-.23 0-.34-.03.23.7.9 1.22 1.7 1.24a3.53 3.53 0 0 1-2.6.73 4.98 4.98 0 0 0 2.68.79c3.22 0 4.98-2.67 4.98-4.99v-.23c.34-.25.63-.56.86-.91Z' fill='white'/%3E%3C/svg%3E" alt="Twitter" />
+          </a>
+        </div>
       </div>
     </footer>
   </body>
