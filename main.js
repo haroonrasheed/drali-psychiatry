@@ -539,7 +539,7 @@ document.addEventListener('DOMContentLoaded', () => {
   toTop.className = 'scroll-top';
   toTop.setAttribute('aria-label', 'Back to top');
   toTop.innerHTML =
-    '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">' +
+    '<svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" focusable="false">' +
     '<path d="M12 5 5 12M12 5l7 7M12 5v14" fill="none" stroke="currentColor" ' +
     'stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   document.body.appendChild(toTop);
