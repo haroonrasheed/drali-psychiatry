@@ -3693,4 +3693,91 @@ h3 {
   color: #0b1a2d !important;
 }
 
+/* ───────────────────────────────────────────────────────────────
+   Mobile-only refinements. Everything below is gated to <=900px,
+   so the desktop layout is intentionally left completely unchanged.
+   ─────────────────────────────────────────────────────────────── */
+
+/* Back-to-top button is hidden by default (incl. all desktop widths) */
+.scroll-top {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  /* 1. Back-to-top button — sits just above the chat button (bottom:80px, 54px tall) */
+  .scroll-top {
+    position: fixed;
+    right: 16px;
+    bottom: 144px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: none;
+    background: #22c55e;
+    color: #ffffff;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.2);
+    z-index: 121;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(8px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+  }
+
+  .scroll-top.visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .scroll-top:active {
+    transform: translateY(0) scale(0.94);
+  }
+
+  /* 2. Show Book Appointment + Call Clinic side-by-side so both are visible
+        without scrolling (Call Clinic was stacked below and off-screen). */
+  .hero-full .cta-group {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .hero-full .cta-group .btn {
+    flex: 1 1 0;
+    width: auto;
+    max-width: none;
+    padding: 13px 12px;
+    font-size: 0.98rem;
+    text-align: center;
+    line-height: 1.15;
+  }
+
+  /* 3. Cleaner hero wallpaper on mobile: even, heavier overlay so the cropped
+        photo reads as a tasteful dark-green hero, plus drop the stray glow blobs. */
+  .hero-full::before {
+    background: linear-gradient(
+      180deg,
+      rgba(2, 18, 11, 0.95) 0%,
+      rgba(4, 30, 18, 0.9) 45%,
+      rgba(6, 40, 22, 0.85) 100%
+    );
+  }
+
+  .hero-full {
+    background-position: 50% 28%;
+  }
+
+  .gradient-blob {
+    display: none;
+  }
+}
+
 

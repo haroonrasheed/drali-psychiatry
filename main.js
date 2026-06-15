@@ -530,4 +530,27 @@ document.addEventListener('DOMContentLoaded', () => {
       setChatOpen(false);
     }
   });
+
+  // ── Back-to-top button ──
+  // Created here so it appears on every page; CSS keeps it mobile-only and
+  // reveals it only after the user has scrolled down.
+  const toTop = document.createElement('button');
+  toTop.type = 'button';
+  toTop.className = 'scroll-top';
+  toTop.setAttribute('aria-label', 'Back to top');
+  toTop.innerHTML =
+    '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">' +
+    '<path d="M12 5 5 12M12 5l7 7M12 5v14" fill="none" stroke="currentColor" ' +
+    'stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  document.body.appendChild(toTop);
+
+  toTop.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  const toggleToTop = () => {
+    toTop.classList.toggle('visible', window.scrollY > 400);
+  };
+  toggleToTop();
+  window.addEventListener('scroll', toggleToTop, { passive: true });
 });
