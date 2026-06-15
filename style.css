@@ -2756,6 +2756,13 @@ h3 {
   }
 }
 
+/* About page: trim the large gap between the intro and the biography block.
+   Uses .section.bio-section (specificity 0,2,0) so it also wins over the
+   global mobile rule `@media { .section { padding: 72px 0 } }`. */
+.section.bio-section {
+  padding-top: 24px;
+}
+
 .bio-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
