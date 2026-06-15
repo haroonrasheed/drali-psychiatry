@@ -210,558 +210,280 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Contact/appointment form handling (Google Apps Script endpoint)
-  const attachContactForms = () => {
-    const forms = document.querySelectorAll('[data-contact-form]');
-    if (!forms.length) return;
+  // ── Shared form submission ──
+  //
+  // Submit a payload to the Apps Script endpoint. Returns one of:
+  //   'sent'     — CORS response read and confirmed OK
+  //   'queued'   — CORS blocked; delivered via no-cors fallback (cannot be confirmed,
+  //                but this is the normal path for Apps Script, which omits CORS headers)
+  //   'rejected' — CORS response read and the server reported a failure
+  //   'error'    — the request could not be dispatched at all (offline, etc.)
+  const submitToScript = async (payload) => {
+    const body = JSON.stringify(payload);
+    const headers = { 'Content-Type': 'application/json' };
+    try {
+      const response = await fetch(SCRIPT_URL, { method: 'POST', mode: 'cors', headers, body });
+      const data = await response.json().catch(() => ({}));
+      return response.ok && data.ok !== false ? 'sent' : 'rejected';
+    } catch (error) {
+      // CORS error (expected for Apps Script) — retry opaque so the request still lands.
+      try {
+        await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers, body });
+        return 'queued';
+      } catch (err) {
+        return 'error';
+      }
+    }
+  };
 
-    const isValid = (payload) => {
-      return payload.name && payload.email && payload.message;
+  // Wire up a single form. `build(formData)` must return an outbound payload object,
+  // or a falsy value when the form is invalid (in which case `messages.invalid` shows).
+  const attachForm = (form, { build, messages, statusSelector = '.form-status' }) => {
+    const statusEl = form.querySelector(statusSelector);
+    const submitBtn = form.querySelector('button[type="submit"]');
+
+    const setStatus = (message, state) => {
+      if (!statusEl) return;
+      statusEl.textContent = message;
+      statusEl.classList.remove('success', 'error', 'pending');
+      if (state) statusEl.classList.add(state);
     };
 
-    forms.forEach((form) => {
-      const statusEl = form.querySelector('.form-status');
-      const submitBtn = form.querySelector('button[type="submit"]');
+    const setSending = (sending) => {
+      if (!submitBtn) return;
+      if (sending) {
+        submitBtn.dataset.originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Sending...';
+        submitBtn.disabled = true;
+      } else {
+        submitBtn.textContent = submitBtn.dataset.originalText || submitBtn.textContent;
+        submitBtn.disabled = false;
+      }
+    };
 
-      const setStatus = (message, state) => {
-        if (!statusEl) return;
-        statusEl.textContent = message;
-        statusEl.classList.remove('success', 'error', 'pending');
-        if (state) statusEl.classList.add(state);
-      };
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const payload = build(new FormData(form));
+      if (!payload) {
+        setStatus(messages.invalid, 'error');
+        return;
+      }
 
-      const setSendingState = (sending) => {
-        if (!submitBtn) return;
-        if (sending) {
-          submitBtn.dataset.originalText = submitBtn.textContent;
-          submitBtn.textContent = 'Sending...';
-          submitBtn.disabled = true;
+      setStatus('Sending...', 'pending');
+      setSending(true);
+      try {
+        const result = await submitToScript(payload);
+        if (result === 'sent' || result === 'queued') {
+          setStatus(messages.success, 'success');
+          form.reset();
+        } else if (result === 'rejected') {
+          setStatus(messages.rejected, 'error');
         } else {
-          submitBtn.textContent = submitBtn.dataset.originalText || submitBtn.textContent;
-          submitBtn.disabled = false;
+          setStatus(messages.error, 'error');
         }
-      };
-
-      form.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const formData = new FormData(form);
-        const payload = {
-          name: (formData.get('name') || '').trim(),
-          email: (formData.get('email') || '').trim(),
-          phone: (formData.get('phone') || '').trim(),
-          message: (formData.get('message') || '').trim(),
-        };
-
-        if (!isValid(payload)) {
-          setStatus('Please complete name, email, and message.', 'error');
-          return;
-        }
-
-        setStatus('Sending...', 'pending');
-        setSendingState(true);
-
-        try {
-          const response = await fetch(SCRIPT_URL, {
-            method: 'POST',
-            mode: 'cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-          });
-
-          // If CORS blocks reading the response, treat opaque as success fallback
-          if (response.type === 'opaque') {
-            setStatus('Thank you. Your request was sent.', 'success');
-            form.reset();
-          } else {
-            const data = await response.json().catch(() => ({}));
-            if (response.ok && data.ok !== false) {
-              setStatus('Thank you. Your request was sent.', 'success');
-              form.reset();
-            } else {
-              setStatus('We could not send your request. Please try again or call the clinic.', 'error');
-            }
-          }
-        } catch (error) {
-          // Retry with no-cors as a final fallback
-          try {
-            await fetch(SCRIPT_URL, {
-              method: 'POST',
-              mode: 'no-cors',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload),
-            });
-            setStatus('Thank you. Your request was sent.', 'success');
-            form.reset();
-          } catch (err) {
-            setStatus('Network error. Please try again or call the clinic.', 'error');
-          }
-        } finally {
-          setSendingState(false);
-        }
-      });
+      } finally {
+        setSending(false);
+      }
     });
   };
 
-  attachContactForms();
+  // Attach every matching form on the page using a shared config per form type.
+  const attachAll = (selector, config) =>
+    document.querySelectorAll(selector).forEach((form) => attachForm(form, config));
 
-  const newPatientForm = document.querySelector('[data-new-patient-form]');
-  if (newPatientForm) {
-    const newPatientStatus = newPatientForm.querySelector('.form-status');
-    const newPatientSubmit = newPatientForm.querySelector('button[type="submit"]');
+  const trimmed = (formData, key) => (formData.get(key) || '').toString().trim();
 
-    const setNewPatientStatus = (message, state) => {
-      if (!newPatientStatus) return;
-      newPatientStatus.textContent = message;
-      newPatientStatus.classList.remove('success', 'error', 'pending');
-      if (state) newPatientStatus.classList.add(state);
-    };
-
-    const setNewPatientSending = (sending) => {
-      if (!newPatientSubmit) return;
-      if (sending) {
-        newPatientSubmit.dataset.originalText = newPatientSubmit.textContent;
-        newPatientSubmit.textContent = 'Sending...';
-        newPatientSubmit.disabled = true;
-      } else {
-        newPatientSubmit.textContent = newPatientSubmit.dataset.originalText || newPatientSubmit.textContent;
-        newPatientSubmit.disabled = false;
-      }
-    };
-
-    newPatientForm.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      const formData = new FormData(newPatientForm);
+  // Contact / quick appointment form
+  attachAll('[data-contact-form]', {
+    build: (formData) => {
       const payload = {
-        firstName: (formData.get('firstName') || '').trim(),
-        lastName: (formData.get('lastName') || '').trim(),
-        phone: (formData.get('phone') || '').trim(),
-        email: (formData.get('email') || '').trim(),
-        provider: (formData.get('provider') || '').trim(),
-        appointmentType: (formData.get('appointmentType') || '').trim(),
-        insurance: (formData.get('insurance') || '').trim(),
-        concern: (formData.get('concern') || '').trim(),
-        location: (formData.get('location') || '').trim(),
-        heardAbout: (formData.get('heardAbout') || '').trim(),
+        name: trimmed(formData, 'name'),
+        email: trimmed(formData, 'email'),
+        phone: trimmed(formData, 'phone'),
+        message: trimmed(formData, 'message'),
       };
+      if (!payload.name || !payload.email || !payload.message) return null;
+      return payload;
+    },
+    messages: {
+      invalid: 'Please complete name, email, and message.',
+      success: 'Thank you. Your request was sent.',
+      rejected: 'We could not send your request. Please try again or call the clinic.',
+      error: 'Network error. Please try again or call the clinic.',
+    },
+  });
 
-      if (
-        !payload.firstName ||
-        !payload.lastName ||
-        !payload.phone ||
-        !payload.email ||
-        !payload.provider ||
-        !payload.appointmentType ||
-        !payload.insurance ||
-        !payload.concern ||
-        !payload.location ||
-        !payload.heardAbout
-      ) {
-        setNewPatientStatus('Please complete all required fields.', 'error');
-        return;
-      }
-
-      const outbound = {
-        name: `${payload.firstName} ${payload.lastName}`.trim(),
-        email: payload.email,
-        phone: payload.phone,
+  // New patient appointment request (modal + inline forms)
+  attachAll('[data-new-patient-form], [data-new-patient-form-inline]', {
+    build: (formData) => {
+      const p = {
+        firstName: trimmed(formData, 'firstName'),
+        lastName: trimmed(formData, 'lastName'),
+        phone: trimmed(formData, 'phone'),
+        email: trimmed(formData, 'email'),
+        provider: trimmed(formData, 'provider'),
+        appointmentType: trimmed(formData, 'appointmentType'),
+        insurance: trimmed(formData, 'insurance'),
+        concern: trimmed(formData, 'concern'),
+        location: trimmed(formData, 'location'),
+        heardAbout: trimmed(formData, 'heardAbout'),
+      };
+      if (Object.values(p).some((v) => !v)) return null;
+      return {
+        name: `${p.firstName} ${p.lastName}`.trim(),
+        email: p.email,
+        phone: p.phone,
         message: formatDetailsMessage([
-          ['First Name', payload.firstName],
-          ['Last Name', payload.lastName],
-          ['Phone', payload.phone],
-          ['Email', payload.email],
-          ['Provider', payload.provider],
-          ['Appointment Type', payload.appointmentType],
-          ['Insurance', payload.insurance],
-          ['Location', payload.location],
-          ['How You Heard About Us', payload.heardAbout],
-          ['Concern', payload.concern],
+          ['First Name', p.firstName],
+          ['Last Name', p.lastName],
+          ['Phone', p.phone],
+          ['Email', p.email],
+          ['Provider', p.provider],
+          ['Appointment Type', p.appointmentType],
+          ['Insurance', p.insurance],
+          ['Location', p.location],
+          ['How You Heard About Us', p.heardAbout],
+          ['Concern', p.concern],
         ]),
-        formType: (formData.get('formType') || 'new_patient').toString(),
-        ...payload,
+        formType: trimmed(formData, 'formType') || 'new_patient',
+        ...p,
       };
+    },
+    messages: {
+      invalid: 'Please complete all required fields.',
+      success: 'Thank you. Your request was sent.',
+      rejected: 'We could not send your request. Please try again or call the clinic.',
+      error: 'Network error. Please try again or call the clinic.',
+    },
+  });
 
-      setNewPatientStatus('Sending...', 'pending');
-      setNewPatientSending(true);
-
-      try {
-        const response = await fetch(SCRIPT_URL, {
-          method: 'POST',
-          mode: 'cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(outbound),
-        });
-
-        if (response.type === 'opaque') {
-          setNewPatientStatus('Thank you. Your request was sent.', 'success');
-          newPatientForm.reset();
-        } else {
-          const data = await response.json().catch(() => ({}));
-          if (response.ok && data.ok !== false) {
-            setNewPatientStatus('Thank you. Your request was sent.', 'success');
-            newPatientForm.reset();
-          } else {
-            setNewPatientStatus('We could not send your request. Please try again or call the clinic.', 'error');
-          }
-        }
-      } catch (error) {
-        try {
-          await fetch(SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(outbound),
-          });
-          setNewPatientStatus('Thank you. Your request was sent.', 'success');
-          newPatientForm.reset();
-        } catch (err) {
-          setNewPatientStatus('Network error. Please try again or call the clinic.', 'error');
-        }
-      } finally {
-        setNewPatientSending(false);
-      }
-    });
-  }
-
-  const cancelForm = document.querySelector('[data-cancel-form]');
-  if (cancelForm) {
-    const cancelStatus = cancelForm.querySelector('.form-status');
-    const cancelSubmit = cancelForm.querySelector('button[type="submit"]');
-
-    const setCancelStatus = (message, state) => {
-      if (!cancelStatus) return;
-      cancelStatus.textContent = message;
-      cancelStatus.classList.remove('success', 'error', 'pending');
-      if (state) cancelStatus.classList.add(state);
-    };
-
-    const setCancelSending = (sending) => {
-      if (!cancelSubmit) return;
-      if (sending) {
-        cancelSubmit.dataset.originalText = cancelSubmit.textContent;
-        cancelSubmit.textContent = 'Sending...';
-        cancelSubmit.disabled = true;
-      } else {
-        cancelSubmit.textContent = cancelSubmit.dataset.originalText || cancelSubmit.textContent;
-        cancelSubmit.disabled = false;
-      }
-    };
-
-    cancelForm.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      const formData = new FormData(cancelForm);
-      const payload = {
-        firstName: (formData.get('firstName') || '').trim(),
-        lastName: (formData.get('lastName') || '').trim(),
-        dob: (formData.get('dob') || '').trim(),
-        phone: (formData.get('phone') || '').trim(),
-        provider: (formData.get('provider') || '').trim(),
-        appointmentDate: (formData.get('appointmentDate') || '').trim(),
-        appointmentTime: (formData.get('appointmentTime') || '').trim(),
-        appointmentType: (formData.get('appointmentType') || '').trim(),
-        location: (formData.get('location') || '').trim(),
-        reason: (formData.get('reason') || '').trim(),
+  // Cancel appointment
+  attachAll('[data-cancel-form]', {
+    build: (formData) => {
+      const p = {
+        firstName: trimmed(formData, 'firstName'),
+        lastName: trimmed(formData, 'lastName'),
+        dob: trimmed(formData, 'dob'),
+        phone: trimmed(formData, 'phone'),
+        provider: trimmed(formData, 'provider'),
+        appointmentDate: trimmed(formData, 'appointmentDate'),
+        appointmentTime: trimmed(formData, 'appointmentTime'),
+        appointmentType: trimmed(formData, 'appointmentType'),
+        location: trimmed(formData, 'location'),
+        reason: trimmed(formData, 'reason'),
       };
-
-      if (
-        !payload.firstName ||
-        !payload.lastName ||
-        !payload.dob ||
-        !payload.phone ||
-        !payload.provider ||
-        !payload.appointmentDate ||
-        !payload.appointmentTime ||
-        !payload.appointmentType ||
-        !payload.location ||
-        !payload.reason
-      ) {
-        setCancelStatus('Please complete all required fields.', 'error');
-        return;
-      }
-
-      const outbound = {
-        name: `${payload.firstName} ${payload.lastName}`.trim(),
+      if (Object.values(p).some((v) => !v)) return null;
+      return {
+        name: `${p.firstName} ${p.lastName}`.trim(),
         email: '',
-        phone: payload.phone,
+        phone: p.phone,
         message: formatDetailsMessage([
-          ['First Name', payload.firstName],
-          ['Last Name', payload.lastName],
-          ['Date of Birth', payload.dob],
-          ['Phone', payload.phone],
-          ['Provider', payload.provider],
-          ['Appointment Date', payload.appointmentDate],
-          ['Appointment Time', payload.appointmentTime],
-          ['Appointment Type', payload.appointmentType],
-          ['Location', payload.location],
-          ['Reason', payload.reason],
+          ['First Name', p.firstName],
+          ['Last Name', p.lastName],
+          ['Date of Birth', p.dob],
+          ['Phone', p.phone],
+          ['Provider', p.provider],
+          ['Appointment Date', p.appointmentDate],
+          ['Appointment Time', p.appointmentTime],
+          ['Appointment Type', p.appointmentType],
+          ['Location', p.location],
+          ['Reason', p.reason],
         ]),
-        formType: (formData.get('formType') || 'cancel_appointment').toString(),
-        ...payload,
+        formType: trimmed(formData, 'formType') || 'cancel_appointment',
+        ...p,
       };
+    },
+    messages: {
+      invalid: 'Please complete all required fields.',
+      success: 'Thank you. Your cancellation request was sent.',
+      rejected: 'We could not send your request. Please call the clinic.',
+      error: 'Network error. Please try again or call the clinic.',
+    },
+  });
 
-      setCancelStatus('Sending...', 'pending');
-      setCancelSending(true);
-
-      try {
-        const response = await fetch(SCRIPT_URL, {
-          method: 'POST',
-          mode: 'cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(outbound),
-        });
-
-        if (response.type === 'opaque') {
-          setCancelStatus('Thank you. Your cancellation request was sent.', 'success');
-          cancelForm.reset();
-        } else {
-          const data = await response.json().catch(() => ({}));
-          if (response.ok && data.ok !== false) {
-            setCancelStatus('Thank you. Your cancellation request was sent.', 'success');
-            cancelForm.reset();
-          } else {
-            setCancelStatus('We could not send your request. Please call the clinic.', 'error');
-          }
-        }
-      } catch (error) {
-        try {
-          await fetch(SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(outbound),
-          });
-          setCancelStatus('Thank you. Your cancellation request was sent.', 'success');
-          cancelForm.reset();
-        } catch (err) {
-          setCancelStatus('Network error. Please try again or call the clinic.', 'error');
-        }
-      } finally {
-        setCancelSending(false);
-      }
-    });
-  }
-
-  const refillForm = document.querySelector('[data-refill-form]');
-  if (refillForm) {
-    const refillStatus = refillForm.querySelector('.form-status');
-    const refillSubmit = refillForm.querySelector('button[type="submit"]');
-
-    const setRefillStatus = (message, state) => {
-      if (!refillStatus) return;
-      refillStatus.textContent = message;
-      refillStatus.classList.remove('success', 'error', 'pending');
-      if (state) refillStatus.classList.add(state);
-    };
-
-    const setRefillSending = (sending) => {
-      if (!refillSubmit) return;
-      if (sending) {
-        refillSubmit.dataset.originalText = refillSubmit.textContent;
-        refillSubmit.textContent = 'Sending...';
-        refillSubmit.disabled = true;
-      } else {
-        refillSubmit.textContent = refillSubmit.dataset.originalText || refillSubmit.textContent;
-        refillSubmit.disabled = false;
-      }
-    };
-
-    refillForm.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      const formData = new FormData(refillForm);
-      const payload = {
-        firstName: (formData.get('firstName') || '').trim(),
-        lastName: (formData.get('lastName') || '').trim(),
-        dob: (formData.get('dob') || '').trim(),
-        phone: (formData.get('phone') || '').trim(),
-        provider: (formData.get('provider') || '').trim(),
-        medication: (formData.get('medication') || '').trim(),
-        dosage: (formData.get('dosage') || '').trim(),
-        pharmacyName: (formData.get('pharmacyName') || '').trim(),
-        pharmacyPhone: (formData.get('pharmacyPhone') || '').trim(),
-        concern: (formData.get('concern') || '').trim(),
+  // Medication refill request
+  attachAll('[data-refill-form]', {
+    build: (formData) => {
+      const p = {
+        firstName: trimmed(formData, 'firstName'),
+        lastName: trimmed(formData, 'lastName'),
+        dob: trimmed(formData, 'dob'),
+        phone: trimmed(formData, 'phone'),
+        provider: trimmed(formData, 'provider'),
+        medication: trimmed(formData, 'medication'),
+        dosage: trimmed(formData, 'dosage'),
+        pharmacyName: trimmed(formData, 'pharmacyName'),
+        pharmacyPhone: trimmed(formData, 'pharmacyPhone'),
+        concern: trimmed(formData, 'concern'),
       };
-
-      if (
-        !payload.firstName ||
-        !payload.lastName ||
-        !payload.dob ||
-        !payload.phone ||
-        !payload.provider ||
-        !payload.medication ||
-        !payload.dosage ||
-        !payload.pharmacyName ||
-        !payload.pharmacyPhone ||
-        !payload.concern
-      ) {
-        setRefillStatus('Please complete all required fields.', 'error');
-        return;
-      }
-
-      const outbound = {
-        name: `${payload.firstName} ${payload.lastName}`.trim(),
+      if (Object.values(p).some((v) => !v)) return null;
+      return {
+        name: `${p.firstName} ${p.lastName}`.trim(),
         email: '',
-        phone: payload.phone,
+        phone: p.phone,
         message: formatDetailsMessage([
-          ['First Name', payload.firstName],
-          ['Last Name', payload.lastName],
-          ['Date of Birth', payload.dob],
-          ['Phone', payload.phone],
-          ['Provider', payload.provider],
-          ['Medication', payload.medication],
-          ['Dosage', payload.dosage],
-          ['Pharmacy Name', payload.pharmacyName],
-          ['Pharmacy Phone', payload.pharmacyPhone],
-          ['Concern', payload.concern],
+          ['First Name', p.firstName],
+          ['Last Name', p.lastName],
+          ['Date of Birth', p.dob],
+          ['Phone', p.phone],
+          ['Provider', p.provider],
+          ['Medication', p.medication],
+          ['Dosage', p.dosage],
+          ['Pharmacy Name', p.pharmacyName],
+          ['Pharmacy Phone', p.pharmacyPhone],
+          ['Concern', p.concern],
         ]),
-        formType: (formData.get('formType') || 'refill_request').toString(),
-        ...payload,
+        formType: trimmed(formData, 'formType') || 'refill_request',
+        ...p,
       };
+    },
+    messages: {
+      invalid: 'Please complete all required fields.',
+      success: 'Thank you. Your refill request was sent.',
+      rejected: 'We could not send your request. Please call the clinic.',
+      error: 'Network error. Please try again or call the clinic.',
+    },
+  });
 
-      setRefillStatus('Sending...', 'pending');
-      setRefillSending(true);
-
-      try {
-        const response = await fetch(SCRIPT_URL, {
-          method: 'POST',
-          mode: 'cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(outbound),
-        });
-
-        if (response.type === 'opaque') {
-          setRefillStatus('Thank you. Your refill request was sent.', 'success');
-          refillForm.reset();
-        } else {
-          const data = await response.json().catch(() => ({}));
-          if (response.ok && data.ok !== false) {
-            setRefillStatus('Thank you. Your refill request was sent.', 'success');
-            refillForm.reset();
-          } else {
-            setRefillStatus('We could not send your request. Please call the clinic.', 'error');
-          }
-        }
-      } catch (error) {
-        try {
-          await fetch(SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(outbound),
-          });
-          setRefillStatus('Thank you. Your refill request was sent.', 'success');
-          refillForm.reset();
-        } catch (err) {
-          setRefillStatus('Network error. Please try again or call the clinic.', 'error');
-        }
-      } finally {
-        setRefillSending(false);
-      }
-    });
-  }
-
-  const billingForm = document.querySelector('[data-billing-form]');
-  if (billingForm) {
-    const billingStatus = billingForm.querySelector('.form-status');
-    const billingSubmit = billingForm.querySelector('button[type="submit"]');
-
-    const setBillingStatus = (message, state) => {
-      if (!billingStatus) return;
-      billingStatus.textContent = message;
-      billingStatus.classList.remove('success', 'error', 'pending');
-      if (state) billingStatus.classList.add(state);
-    };
-
-    const setBillingSending = (sending) => {
-      if (!billingSubmit) return;
-      if (sending) {
-        billingSubmit.dataset.originalText = billingSubmit.textContent;
-        billingSubmit.textContent = 'Sending...';
-        billingSubmit.disabled = true;
-      } else {
-        billingSubmit.textContent = billingSubmit.dataset.originalText || billingSubmit.textContent;
-        billingSubmit.disabled = false;
-      }
-    };
-
-    billingForm.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      const formData = new FormData(billingForm);
-      const payload = {
-        firstName: (formData.get('firstName') || '').trim(),
-        lastName: (formData.get('lastName') || '').trim(),
-        dob: (formData.get('dob') || '').trim(),
-        phone: (formData.get('phone') || '').trim(),
-        concern: (formData.get('concern') || '').trim(),
+  // Billing questions
+  attachAll('[data-billing-form]', {
+    build: (formData) => {
+      const p = {
+        firstName: trimmed(formData, 'firstName'),
+        lastName: trimmed(formData, 'lastName'),
+        dob: trimmed(formData, 'dob'),
+        phone: trimmed(formData, 'phone'),
+        concern: trimmed(formData, 'concern'),
       };
-
-      if (!payload.firstName || !payload.lastName || !payload.dob || !payload.phone || !payload.concern) {
-        setBillingStatus('Please complete all required fields.', 'error');
-        return;
-      }
-
-      const outbound = {
-        name: `${payload.firstName} ${payload.lastName}`.trim(),
+      if (Object.values(p).some((v) => !v)) return null;
+      return {
+        name: `${p.firstName} ${p.lastName}`.trim(),
         email: '',
-        phone: payload.phone,
+        phone: p.phone,
         message: formatDetailsMessage([
-          ['First Name', payload.firstName],
-          ['Last Name', payload.lastName],
-          ['Date of Birth', payload.dob],
-          ['Phone', payload.phone],
-          ['Question', payload.concern],
+          ['First Name', p.firstName],
+          ['Last Name', p.lastName],
+          ['Date of Birth', p.dob],
+          ['Phone', p.phone],
+          ['Question', p.concern],
         ]),
-        formType: (formData.get('formType') || 'billing_questions').toString(),
-        ...payload,
+        formType: trimmed(formData, 'formType') || 'billing_questions',
+        ...p,
       };
+    },
+    messages: {
+      invalid: 'Please complete all required fields.',
+      success: 'Thank you. Your billing question was sent.',
+      rejected: 'We could not send your request. Please call the clinic.',
+      error: 'Network error. Please try again or call the clinic.',
+    },
+  });
 
-      setBillingStatus('Sending...', 'pending');
-      setBillingSending(true);
-
-      try {
-        const response = await fetch(SCRIPT_URL, {
-          method: 'POST',
-          mode: 'cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(outbound),
-        });
-
-        if (response.type === 'opaque') {
-          setBillingStatus('Thank you. Your billing question was sent.', 'success');
-          billingForm.reset();
-        } else {
-          const data = await response.json().catch(() => ({}));
-          if (response.ok && data.ok !== false) {
-            setBillingStatus('Thank you. Your billing question was sent.', 'success');
-            billingForm.reset();
-          } else {
-            setBillingStatus('We could not send your request. Please call the clinic.', 'error');
-          }
-        }
-      } catch (error) {
-        try {
-          await fetch(SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(outbound),
-          });
-          setBillingStatus('Thank you. Your billing question was sent.', 'success');
-          billingForm.reset();
-        } catch (err) {
-          setBillingStatus('Network error. Please try again or call the clinic.', 'error');
-        }
-      } finally {
-        setBillingSending(false);
-      }
-    });
-  }
-
-  // Chatbox toggle and dummy submit
+  // Chatbox toggle
   const chatToggle = document.querySelector('.chat-toggle');
   const chatbox = document.getElementById('chatbox');
   const chatClose = document.querySelector('.chatbox-close');
   const chatForm = document.querySelector('[data-chat-form]');
-  const chatStatus = chatForm ? chatForm.querySelector('.chatbox-status') : null;
-  const chatSubmitBtn = chatForm ? chatForm.querySelector('button[type="submit"]') : null;
 
   const setChatOpen = (open) => {
     if (!chatbox || !chatToggle) return;
@@ -781,76 +503,25 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (chatForm) {
-    chatForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const formData = new FormData(chatForm);
-      const name = (formData.get('name') || '').trim();
-      const email = (formData.get('email') || '').trim();
-      const phone = (formData.get('phone') || '').trim();
-      const message = (formData.get('message') || '').trim();
-
-      if (!name || !email || !message) {
-        if (chatStatus) chatStatus.textContent = 'Please add your name, email, and message.';
-        return;
-      }
-
-      const setChatStatus = (text) => {
-        if (chatStatus) chatStatus.textContent = text;
-      };
-
-      const setChatSending = (sending) => {
-        if (!chatSubmitBtn) return;
-        if (sending) {
-          chatSubmitBtn.dataset.originalText = chatSubmitBtn.textContent;
-          chatSubmitBtn.textContent = 'Sending...';
-          chatSubmitBtn.disabled = true;
-        } else {
-          chatSubmitBtn.textContent = chatSubmitBtn.dataset.originalText || chatSubmitBtn.textContent;
-          chatSubmitBtn.disabled = false;
-        }
-      };
-
-      setChatStatus('Sending...');
-      setChatSending(true);
-
-      const payload = { name, email, phone, message, source: 'chat' };
-
-      const sendRequest = async (mode) => {
-        return fetch(SCRIPT_URL, {
-          method: 'POST',
-          mode,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-      };
-
-      (async () => {
-        try {
-          const response = await sendRequest('cors');
-          if (response.type === 'opaque') {
-            setChatStatus('Thanks! We received your message and will respond soon.');
-            chatForm.reset();
-            return;
-          }
-          const data = await response.json().catch(() => ({}));
-          if (response.ok && data.ok !== false) {
-            setChatStatus('Thanks! We received your message and will respond soon.');
-            chatForm.reset();
-          } else {
-            setChatStatus('Unable to send right now. Please call the clinic.');
-          }
-        } catch (err) {
-          try {
-            await sendRequest('no-cors');
-            setChatStatus('Thanks! We received your message and will respond soon.');
-            chatForm.reset();
-          } catch (e2) {
-            setChatStatus('Network error. Please call the clinic.');
-          }
-        } finally {
-          setChatSending(false);
-        }
-      })();
+    attachForm(chatForm, {
+      statusSelector: '.chatbox-status',
+      build: (formData) => {
+        const payload = {
+          name: trimmed(formData, 'name'),
+          email: trimmed(formData, 'email'),
+          phone: trimmed(formData, 'phone'),
+          message: trimmed(formData, 'message'),
+          source: 'chat',
+        };
+        if (!payload.name || !payload.email || !payload.message) return null;
+        return payload;
+      },
+      messages: {
+        invalid: 'Please add your name, email, and message.',
+        success: 'Thanks! We received your message and will respond soon.',
+        rejected: 'Unable to send right now. Please call the clinic.',
+        error: 'Network error. Please call the clinic.',
+      },
     });
   }
 
